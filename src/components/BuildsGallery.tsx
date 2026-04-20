@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect, useCallback } from "react";
 import { TIERS, type Tier } from "@/data/mockBuilds";
 import { BuildCard } from "./BuildCard";
-import { CreateBuildModal } from "./CreateBuildModal";
+import { CreateBuildModal, type EditingBuild } from "./CreateBuildModal";
 import { BuildDetailModal } from "./BuildDetailModal";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -35,6 +35,7 @@ export const BuildsGallery = () => {
   const [builds, setBuilds] = useState<BuildRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const [editing, setEditing] = useState<EditingBuild | null>(null);
   const [detailBuild, setDetailBuild] = useState<BuildRow | null>(null);
 
   const fetchBuilds = useCallback(async () => {
@@ -74,12 +75,46 @@ export const BuildsGallery = () => {
     fetchBuilds();
   }, [fetchBuilds]);
 
+  // Realtime: keep builds list in sync (insert/update/delete)
+  useEffect(() => {
+    const channel = supabase
+      .channel("builds-list")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "builds" },
+        () => {
+          void fetchBuilds();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [fetchBuilds]);
+
   const filtered = useMemo(
     () => (filter === "ALL" ? builds : builds.filter((b) => b.tier === filter)),
     [filter, builds]
   );
 
   const filters: Filter[] = ["ALL", ...TIERS];
+
+  const handleEdit = (b: BuildRow) => {
+    setEditing({
+      id: b.id,
+      name: b.name,
+      tier: b.tier as Tier,
+      description: b.description,
+      team_data: b.team_data ?? [],
+    });
+    setModalOpen(true);
+  };
+
+  const handleCreate = () => {
+    setEditing(null);
+    setModalOpen(true);
+  };
 
   return (
     <section id="builds" className="py-20 md:py-28 relative">
@@ -118,7 +153,7 @@ export const BuildsGallery = () => {
 
           {user && (
             <Button
-              onClick={() => setModalOpen(true)}
+              onClick={handleCreate}
               className="ml-2 font-display text-sm tracking-[0.2em] bg-gradient-neon text-background hover:opacity-90 shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
             >
               <Plus size={16} className="mr-1" />
@@ -150,8 +185,12 @@ export const BuildsGallery = () => {
                     votes: b.votes_count,
                     views: 0,
                   }}
+                  buildId={b.id}
+                  ownerId={b.user_id}
                   authorRole={b.author?.role ?? null}
                   onOpen={() => setDetailBuild(b)}
+                  onEdit={() => handleEdit(b)}
+                  onDeleted={fetchBuilds}
                 />
               </div>
             ))}
@@ -163,7 +202,7 @@ export const BuildsGallery = () => {
             </p>
             {user ? (
               <Button
-                onClick={() => setModalOpen(true)}
+                onClick={handleCreate}
                 className="font-display tracking-[0.3em] bg-gradient-neon text-background hover:opacity-90"
               >
                 <Plus size={16} className="mr-1" />
@@ -180,8 +219,12 @@ export const BuildsGallery = () => {
 
       <CreateBuildModal
         open={modalOpen}
-        onOpenChange={setModalOpen}
+        onOpenChange={(o) => {
+          setModalOpen(o);
+          if (!o) setEditing(null);
+        }}
         onCreated={fetchBuilds}
+        editing={editing}
       />
 
       <BuildDetailModal

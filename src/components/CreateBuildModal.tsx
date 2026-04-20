@@ -17,7 +17,11 @@ import { Input } from "@/components/ui/input";
 import { PokemonSprite } from "./PokemonSprite";
 import { PokemonDetailEditor } from "./PokemonDetailEditor";
 import { TIERS, type Tier } from "@/data/mockBuilds";
-import { createMember, type TeamMember } from "@/data/pokemonMeta";
+import {
+  createMember,
+  natureLabel,
+  type TeamMember,
+} from "@/data/pokemonMeta";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -36,15 +40,30 @@ async function fetchPokemonList() {
   return pokemonListCache;
 }
 
+export interface EditingBuild {
+  id: string;
+  name: string;
+  tier: Tier;
+  description: string | null;
+  team_data: TeamMember[];
+}
+
 interface CreateBuildModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onCreated: () => void;
+  editing?: EditingBuild | null;
 }
 
-export const CreateBuildModal = ({ open, onOpenChange, onCreated }: CreateBuildModalProps) => {
+export const CreateBuildModal = ({
+  open,
+  onOpenChange,
+  onCreated,
+  editing,
+}: CreateBuildModalProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const isEditing = !!editing;
 
   const [name, setName] = useState("");
   const [tier, setTier] = useState<Tier>("OU");
@@ -57,6 +76,7 @@ export const CreateBuildModal = ({ open, onOpenChange, onCreated }: CreateBuildM
   const [submitting, setSubmitting] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
 
+  // Load Pokémon list when opened
   useEffect(() => {
     if (open) {
       setLoading(true);
@@ -65,6 +85,19 @@ export const CreateBuildModal = ({ open, onOpenChange, onCreated }: CreateBuildM
         .finally(() => setLoading(false));
     }
   }, [open]);
+
+  // Pre-fill when editing
+  useEffect(() => {
+    if (open && editing) {
+      setName(editing.name);
+      setTier(editing.tier);
+      setDescription(editing.description ?? "");
+      setTeam(editing.team_data ?? []);
+    } else if (open && !editing) {
+      reset();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, editing]);
 
   const filtered =
     search.length >= 2
@@ -113,14 +146,26 @@ export const CreateBuildModal = ({ open, onOpenChange, onCreated }: CreateBuildM
     }
 
     setSubmitting(true);
-    const { error } = await supabase.from("builds").insert({
-      user_id: user.id,
+
+    const payload = {
       name: name.trim(),
       tier,
       description: description.trim() || null,
       pokemon_ids: team.map((m) => m.pokemonId),
       team_data: team as unknown as never,
-    });
+    };
+
+    let error;
+    if (isEditing && editing) {
+      ({ error } = await supabase
+        .from("builds")
+        .update(payload)
+        .eq("id", editing.id));
+    } else {
+      ({ error } = await supabase
+        .from("builds")
+        .insert({ ...payload, user_id: user.id }));
+    }
     setSubmitting(false);
 
     if (error) {
@@ -128,7 +173,12 @@ export const CreateBuildModal = ({ open, onOpenChange, onCreated }: CreateBuildM
       return;
     }
 
-    toast({ title: "¡Build publicada!", description: "Tu equipo ya está en la galería." });
+    toast({
+      title: isEditing ? "¡Build actualizada!" : "¡Build publicada!",
+      description: isEditing
+        ? "Los cambios se han guardado."
+        : "Tu equipo ya está en la galería.",
+    });
     reset();
     onOpenChange(false);
     onCreated();
@@ -139,10 +189,10 @@ export const CreateBuildModal = ({ open, onOpenChange, onCreated }: CreateBuildM
       <DialogContent className="glass-strong border-primary/40 max-w-2xl max-h-[92vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-display text-2xl tracking-wider neon-text-red">
-            NUEVA BUILD
+            {isEditing ? "EDITAR BUILD" : "NUEVA BUILD"}
           </DialogTitle>
           <DialogDescription className="text-foreground/60">
-            Configura cada Pokémon a nivel competitivo: movimientos, naturaleza, EVs, IVs y objeto.
+            Configura cada Pokémon a nivel competitivo: movimientos, naturaleza, EVs, IVs, habilidad y objeto.
           </DialogDescription>
         </DialogHeader>
 
@@ -287,7 +337,7 @@ export const CreateBuildModal = ({ open, onOpenChange, onCreated }: CreateBuildM
                           {m.pokemonName}
                         </span>
                         <span className="ml-auto text-[10px] text-foreground/40 font-display tracking-wider">
-                          {m.nature}
+                          {natureLabel(m.nature)}
                         </span>
                       </div>
                     </AccordionTrigger>
@@ -309,7 +359,7 @@ export const CreateBuildModal = ({ open, onOpenChange, onCreated }: CreateBuildM
             className="w-full font-display tracking-[0.3em] bg-gradient-neon text-background hover:opacity-90 shadow-[0_0_20px_hsl(var(--primary)/0.4)] disabled:opacity-40"
           >
             {submitting ? <Loader2 size={16} className="animate-spin mr-2" /> : null}
-            PUBLICAR BUILD
+            {isEditing ? "GUARDAR CAMBIOS" : "PUBLICAR BUILD"}
           </Button>
         </div>
       </DialogContent>
