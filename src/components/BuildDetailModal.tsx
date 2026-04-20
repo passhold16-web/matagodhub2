@@ -13,8 +13,16 @@ import {
 } from "@/components/ui/accordion";
 import { Progress } from "@/components/ui/progress";
 import { PokemonSprite } from "./PokemonSprite";
-import { STAT_KEYS, STAT_LABELS, MAX_EV_STAT, type TeamMember } from "@/data/pokemonMeta";
-import { Heart, User, Package, Sparkles } from "lucide-react";
+import { AuthorBadge } from "./AuthorBadge";
+import {
+  STAT_KEYS,
+  STAT_LABELS,
+  MAX_EV_STAT,
+  translateMoveToEs,
+  type TeamMember,
+} from "@/data/pokemonMeta";
+import { Heart, Package, Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface BuildDetailModalProps {
   open: boolean;
@@ -27,8 +35,21 @@ interface BuildDetailModalProps {
     pokemon_ids: number[];
     team_data: TeamMember[] | null;
     votes_count: number;
+    author?: { username: string; role: string | null };
   } | null;
 }
+
+const MoveLabel = ({ raw }: { raw: string }) => {
+  const [label, setLabel] = useState(raw);
+  useEffect(() => {
+    if (!raw) {
+      setLabel("");
+      return;
+    }
+    translateMoveToEs(raw).then(setLabel);
+  }, [raw]);
+  return <>{label || <span className="text-foreground/30">—</span>}</>;
+};
 
 export const BuildDetailModal = ({ open, onOpenChange, build }: BuildDetailModalProps) => {
   if (!build) return null;
@@ -39,13 +60,21 @@ export const BuildDetailModal = ({ open, onOpenChange, build }: BuildDetailModal
       <DialogContent className="glass-strong border-primary/40 max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-start justify-between gap-3 pr-6">
-            <div>
+            <div className="min-w-0">
               <DialogTitle className="font-display text-2xl tracking-wider neon-text-red">
                 {build.name}
               </DialogTitle>
               <DialogDescription className="text-foreground/60 mt-1">
                 {build.description || "Sin descripción"}
               </DialogDescription>
+              {build.author && (
+                <div className="mt-2">
+                  <AuthorBadge
+                    username={build.author.username}
+                    role={build.author.role}
+                  />
+                </div>
+              )}
             </div>
             <span className={`tier-badge tier-${build.tier} shrink-0`}>{build.tier}</span>
           </div>
@@ -103,7 +132,7 @@ export const BuildDetailModal = ({ open, onOpenChange, build }: BuildDetailModal
                                 key={i}
                                 className="px-2 py-1 rounded bg-background/60 border border-primary/20 text-xs capitalize text-foreground/90"
                               >
-                                {mv || <span className="text-foreground/30">—</span>}
+                                <MoveLabel raw={mv} />
                               </div>
                             ))}
                           </div>

@@ -11,7 +11,12 @@ import type { TeamMember } from "@/data/pokemonMeta";
 
 type Filter = "ALL" | Tier;
 
-interface BuildRow {
+export interface AuthorInfo {
+  username: string;
+  role: string | null;
+}
+
+export interface BuildRow {
   id: string;
   user_id: string;
   name: string;
@@ -21,6 +26,7 @@ interface BuildRow {
   team_data: TeamMember[] | null;
   votes_count: number;
   created_at: string;
+  author?: AuthorInfo;
 }
 
 export const BuildsGallery = () => {
@@ -33,11 +39,34 @@ export const BuildsGallery = () => {
 
   const fetchBuilds = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase
+    const { data: buildsData } = await supabase
       .from("builds")
       .select("*")
       .order("created_at", { ascending: false });
-    if (data) setBuilds(data as unknown as BuildRow[]);
+
+    if (!buildsData) {
+      setBuilds([]);
+      setLoading(false);
+      return;
+    }
+
+    const userIds = Array.from(new Set(buildsData.map((b) => b.user_id)));
+    const { data: profilesData } = await supabase
+      .from("profiles")
+      .select("user_id, username, role")
+      .in("user_id", userIds);
+
+    const authorMap = new Map<string, AuthorInfo>();
+    (profilesData ?? []).forEach((p) =>
+      authorMap.set(p.user_id, { username: p.username, role: p.role ?? null })
+    );
+
+    const enriched = buildsData.map((b) => ({
+      ...b,
+      author: authorMap.get(b.user_id) ?? { username: "Trainer", role: null },
+    })) as unknown as BuildRow[];
+
+    setBuilds(enriched);
     setLoading(false);
   }, []);
 
@@ -114,13 +143,14 @@ export const BuildsGallery = () => {
                   build={{
                     id: b.id,
                     name: b.name,
-                    author: "Trainer",
+                    author: b.author?.username ?? "Trainer",
                     tier: b.tier as Tier,
                     description: b.description ?? "",
                     pokemonIds: b.pokemon_ids,
                     votes: b.votes_count,
                     views: 0,
                   }}
+                  authorRole={b.author?.role ?? null}
                   onOpen={() => setDetailBuild(b)}
                 />
               </div>
