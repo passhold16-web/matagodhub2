@@ -132,7 +132,7 @@ export const BuildDetailModal = ({ open, onOpenChange, build }: BuildDetailModal
                                 key={i}
                                 className="px-2 py-1 rounded bg-background/60 border border-primary/20 text-xs capitalize text-foreground/90"
                               >
-                                {mv || <span className="text-foreground/30">—</span>}
+                                <MoveLabel raw={mv} />
                               </div>
                             ))}
                           </div>
