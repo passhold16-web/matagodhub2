@@ -12,17 +12,23 @@ import {
   AccordionContent,
 } from "@/components/ui/accordion";
 import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
 import { PokemonSprite } from "./PokemonSprite";
 import { AuthorBadge } from "./AuthorBadge";
 import {
   STAT_KEYS,
-  STAT_LABELS,
+  STAT_LABELS_SHORT,
   MAX_EV_STAT,
   translateMoveToEs,
+  translateAbilityToEs,
+  natureLabel,
+  itemLabel,
   type TeamMember,
 } from "@/data/pokemonMeta";
-import { Heart, Package, Sparkles } from "lucide-react";
+import { teamToShowdown } from "@/lib/showdown";
+import { Heart, Package, Sparkles, Zap, Copy, Check } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 interface BuildDetailModalProps {
   open: boolean;
@@ -51,9 +57,44 @@ const MoveLabel = ({ raw }: { raw: string }) => {
   return <>{label || <span className="text-foreground/30">—</span>}</>;
 };
 
+const AbilityLabel = ({ raw }: { raw: string }) => {
+  const [label, setLabel] = useState(raw);
+  useEffect(() => {
+    if (!raw) {
+      setLabel("");
+      return;
+    }
+    translateAbilityToEs(raw).then(setLabel);
+  }, [raw]);
+  return <>{label || <span className="text-foreground/30">—</span>}</>;
+};
+
 export const BuildDetailModal = ({ open, onOpenChange, build }: BuildDetailModalProps) => {
+  const { toast } = useToast();
+  const [copied, setCopied] = useState(false);
+
   if (!build) return null;
   const team = build.team_data;
+
+  const handleExport = async () => {
+    if (!team) return;
+    const text = teamToShowdown(team);
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      toast({
+        title: "¡Copiado!",
+        description: "Build en formato Showdown lista para pegar.",
+      });
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast({
+        title: "Error",
+        description: "No se pudo copiar al portapapeles.",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -78,10 +119,28 @@ export const BuildDetailModal = ({ open, onOpenChange, build }: BuildDetailModal
             </div>
             <span className={`tier-badge tier-${build.tier} shrink-0`}>{build.tier}</span>
           </div>
-          <div className="flex items-center gap-4 text-xs text-foreground/60 mt-2">
-            <span className="flex items-center gap-1">
+          <div className="flex items-center justify-between mt-2 gap-2 flex-wrap">
+            <span className="flex items-center gap-1 text-xs text-foreground/60">
               <Heart size={12} className="text-primary" /> {build.votes_count}
             </span>
+            {team && team.length === 6 && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleExport}
+                className="h-7 text-[11px] font-display tracking-widest border-accent/40 text-accent hover:bg-accent/10 hover:text-accent"
+              >
+                {copied ? (
+                  <>
+                    <Check size={11} className="mr-1.5" /> COPIADO
+                  </>
+                ) : (
+                  <>
+                    <Copy size={11} className="mr-1.5" /> EXPORTAR SHOWDOWN
+                  </>
+                )}
+              </Button>
+            )}
           </div>
         </DialogHeader>
 
@@ -104,21 +163,31 @@ export const BuildDetailModal = ({ open, onOpenChange, build }: BuildDetailModal
                             {m.pokemonName || `#${m.pokemonId}`}
                           </div>
                           <div className="text-[10px] text-foreground/50 truncate">
-                            {m.nature} · {m.item || "Sin objeto"}
+                            {natureLabel(m.nature)} · {itemLabel(m.item) || "Sin objeto"}
                           </div>
                         </div>
                       </div>
                     </AccordionTrigger>
                     <AccordionContent>
                       <div className="space-y-3 px-1">
-                        <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
                           <div className="flex items-center gap-1.5 text-foreground/70">
-                            <Package size={11} className="text-accent" />
-                            <span className="font-display tracking-wider">{m.item || "—"}</span>
+                            <Package size={11} className="text-accent shrink-0" />
+                            <span className="font-display tracking-wider truncate">
+                              {itemLabel(m.item) || "—"}
+                            </span>
                           </div>
                           <div className="flex items-center gap-1.5 text-foreground/70">
-                            <Sparkles size={11} className="text-accent" />
-                            <span className="font-display tracking-wider">{m.nature}</span>
+                            <Sparkles size={11} className="text-accent shrink-0" />
+                            <span className="font-display tracking-wider truncate">
+                              {natureLabel(m.nature)}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1.5 text-foreground/70">
+                            <Zap size={11} className="text-accent shrink-0" />
+                            <span className="font-display tracking-wider truncate capitalize">
+                              <AbilityLabel raw={m.ability || ""} />
+                            </span>
                           </div>
                         </div>
 
@@ -150,8 +219,8 @@ export const BuildDetailModal = ({ open, onOpenChange, build }: BuildDetailModal
                           <div className="space-y-1">
                             {STAT_KEYS.map((k) => (
                               <div key={k} className="flex items-center gap-2">
-                                <span className="font-display text-[10px] tracking-wider w-8 text-foreground/60">
-                                  {STAT_LABELS[k]}
+                                <span className="font-display text-[10px] tracking-wider w-10 text-foreground/60">
+                                  {STAT_LABELS_SHORT[k]}
                                 </span>
                                 <Progress
                                   value={((m.evs?.[k] || 0) / MAX_EV_STAT) * 100}
@@ -176,7 +245,7 @@ export const BuildDetailModal = ({ open, onOpenChange, build }: BuildDetailModal
                                 className="rounded bg-background/60 border border-primary/20 text-center py-1"
                               >
                                 <div className="font-display text-[9px] text-foreground/50">
-                                  {STAT_LABELS[k]}
+                                  {STAT_LABELS_SHORT[k]}
                                 </div>
                                 <div className="font-display text-xs text-accent">
                                   {m.ivs?.[k] ?? 31}
