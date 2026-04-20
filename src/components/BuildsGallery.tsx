@@ -37,7 +37,7 @@ export const BuildsGallery = () => {
       .from("builds")
       .select("*")
       .order("created_at", { ascending: false });
-    if (data) setBuilds(data as BuildRow[]);
+    if (data) setBuilds(data as unknown as BuildRow[]);
     setLoading(false);
   }, []);
 
