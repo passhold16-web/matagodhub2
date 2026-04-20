@@ -2,95 +2,74 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* ============================================
+   MATAGOD HUB — Design System (Cyberpunk God Tier)
+   All colors HSL. All effects centralized here.
+   ============================================ */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Core palette */
+    --background: 240 60% 3%;          /* #05050c */
+    --foreground: 0 0% 96%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 240 50% 5%;
+    --card-foreground: 0 0% 96%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 240 60% 4%;
+    --popover-foreground: 0 0% 96%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Neon Red — primary brand */
+    --primary: 348 100% 50%;            /* #FF0040 */
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 348 100% 60%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Gold — accent */
+    --accent: 51 100% 50%;              /* #FFD700 */
+    --accent-foreground: 240 60% 3%;
+    --accent-glow: 51 100% 65%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --secondary: 240 30% 10%;
+    --secondary-foreground: 0 0% 96%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --muted: 240 20% 12%;
+    --muted-foreground: 240 10% 65%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 90% 55%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 348 80% 25%;
+    --input: 240 30% 10%;
+    --ring: 348 100% 50%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 98%;
+    /* Gradients */
+    --gradient-neon: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
+    --gradient-hero: radial-gradient(ellipse at center, hsl(348 100% 25% / 0.4) 0%, hsl(var(--background)) 70%);
+    --gradient-glass: linear-gradient(135deg, hsl(0 0% 100% / 0.06) 0%, hsl(0 0% 100% / 0.02) 100%);
+    --conic-neon: conic-gradient(from var(--angle, 0deg), hsl(var(--primary)), hsl(var(--accent)), hsl(var(--primary)));
 
-    --sidebar-foreground: 240 5.3% 26.1%;
+    /* Shadows / glows */
+    --glow-red: 0 0 20px hsl(var(--primary) / 0.6), 0 0 40px hsl(var(--primary) / 0.3);
+    --glow-gold: 0 0 20px hsl(var(--accent) / 0.6), 0 0 40px hsl(var(--accent) / 0.3);
+    --shadow-card: 0 8px 32px hsl(0 0% 0% / 0.6);
 
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Sidebar (kept for shadcn compatibility) */
+    --sidebar-background: 240 50% 5%;
+    --sidebar-foreground: 0 0% 96%;
+    --sidebar-primary: 348 100% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 30% 10%;
+    --sidebar-accent-foreground: 0 0% 96%;
+    --sidebar-border: 348 80% 25%;
+    --sidebar-ring: 348 100% 50%;
   }
 
+  /* Force dark cyberpunk always */
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --background: 240 60% 3%;
+    --foreground: 0 0% 96%;
   }
 }
 
@@ -99,7 +78,207 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
+  html {
+    @apply dark;
+  }
+
   body {
     @apply bg-background text-foreground;
+    font-family: 'Exo 2', system-ui, sans-serif;
+    background-color: hsl(var(--background));
+    background-image:
+      linear-gradient(hsl(var(--primary) / 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--primary) / 0.08) 1px, transparent 1px),
+      radial-gradient(ellipse at top, hsl(348 100% 20% / 0.25), transparent 60%),
+      radial-gradient(ellipse at bottom, hsl(51 100% 15% / 0.15), transparent 60%);
+    background-size: 60px 60px, 60px 60px, 100% 100%, 100% 100%;
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, h4, h5, h6, .font-display {
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 0.04em;
   }
 }
+
+/* ============================================
+   Custom property registration for animated conic-gradient
+   ============================================ */
+@property --angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+/* ============================================
+   Utility components
+   ============================================ */
+@layer components {
+
+  /* Glassmorphism extreme */
+  .glass {
+    background: var(--gradient-glass);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid hsl(0 0% 100% / 0.08);
+  }
+
+  .glass-strong {
+    background: hsl(240 60% 5% / 0.6);
+    backdrop-filter: blur(28px) saturate(200%);
+    -webkit-backdrop-filter: blur(28px) saturate(200%);
+    border: 1px solid hsl(var(--primary) / 0.25);
+  }
+
+  /* Neon animated border (conic-gradient) */
+  .neon-border {
+    position: relative;
+    border-radius: var(--radius);
+    isolation: isolate;
+  }
+  .neon-border::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    padding: 2px;
+    background: var(--conic-neon);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: rotate-conic 6s linear infinite;
+    z-index: -1;
+    opacity: 0.9;
+  }
+  .neon-border::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    background: var(--conic-neon);
+    filter: blur(14px);
+    opacity: 0.45;
+    animation: rotate-conic 6s linear infinite;
+    z-index: -2;
+  }
+
+  /* Neon text glow */
+  .neon-text-red {
+    color: hsl(var(--primary));
+    text-shadow:
+      0 0 8px hsl(var(--primary) / 0.8),
+      0 0 20px hsl(var(--primary) / 0.5),
+      0 0 40px hsl(var(--primary) / 0.3);
+  }
+  .neon-text-gold {
+    color: hsl(var(--accent));
+    text-shadow:
+      0 0 8px hsl(var(--accent) / 0.8),
+      0 0 20px hsl(var(--accent) / 0.5),
+      0 0 40px hsl(var(--accent) / 0.3);
+  }
+
+  /* Glitch effect (MATAGOD) */
+  .glitch {
+    position: relative;
+    color: hsl(var(--foreground));
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    text-shadow: 0 0 10px hsl(var(--primary) / 0.6);
+  }
+  .glitch::before,
+  .glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .glitch::before {
+    color: hsl(var(--primary));
+    animation: glitch-1 2.6s infinite steps(2, end);
+    clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+    transform: translate(-2px, 0);
+  }
+  .glitch::after {
+    color: hsl(var(--accent));
+    animation: glitch-2 3.1s infinite steps(2, end);
+    clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+    transform: translate(2px, 0);
+  }
+
+  /* Tier badges */
+  .tier-badge {
+    @apply px-2 py-0.5 text-xs font-display font-bold rounded border;
+    letter-spacing: 0.1em;
+  }
+  .tier-OU { @apply text-primary border-primary; box-shadow: 0 0 12px hsl(var(--primary) / 0.5); }
+  .tier-UU { color: hsl(var(--accent)); border-color: hsl(var(--accent)); box-shadow: 0 0 12px hsl(var(--accent) / 0.5); }
+  .tier-NU { color: hsl(190 100% 60%); border-color: hsl(190 100% 60%); box-shadow: 0 0 12px hsl(190 100% 60% / 0.5); }
+  .tier-LC { color: hsl(280 100% 70%); border-color: hsl(280 100% 70%); box-shadow: 0 0 12px hsl(280 100% 70% / 0.5); }
+
+  /* Marquee */
+  .marquee {
+    overflow: hidden;
+    position: relative;
+    mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  }
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    animation: marquee 40s linear infinite;
+    gap: 3rem;
+  }
+
+  /* Pixelated rendering for sprites */
+  .pixelated {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+  }
+}
+
+/* ============================================
+   Keyframes
+   ============================================ */
+@keyframes rotate-conic {
+  to { --angle: 360deg; }
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@keyframes glitch-1 {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-3px, 1px); }
+  40% { transform: translate(2px, -1px); }
+  60% { transform: translate(-2px, 0); }
+  80% { transform: translate(1px, 2px); }
+}
+@keyframes glitch-2 {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(2px, -1px); }
+  50% { transform: translate(-2px, 1px); }
+  75% { transform: translate(1px, 2px); }
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(2deg); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 30px hsl(var(--primary) / 0.4); }
+  50% { box-shadow: 0 0 60px hsl(var(--primary) / 0.8); }
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-float { animation: float-slow 6s ease-in-out infinite; }
+.animate-pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
+.animate-fade-in-up { animation: fade-in-up 0.6s ease-out both; }
