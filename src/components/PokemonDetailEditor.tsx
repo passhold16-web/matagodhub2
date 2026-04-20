@@ -1,15 +1,17 @@
 import { useEffect, useState, useMemo } from "react";
-import { PokemonSprite } from "./PokemonSprite";
 import { Input } from "@/components/ui/input";
 import {
   NATURES,
+  NATURE_ES,
   ITEMS,
+  ITEM_ES,
   STAT_KEYS,
-  STAT_LABELS,
+  STAT_LABELS_SHORT,
   MAX_EV_TOTAL,
   MAX_EV_STAT,
   MAX_IV,
   fetchPokemonMoves,
+  fetchPokemonAbilities,
   type TeamMember,
   type StatKey,
 } from "@/data/pokemonMeta";
@@ -25,11 +27,20 @@ const clamp = (n: number, min: number, max: number) =>
 
 export const PokemonDetailEditor = ({ member, onChange }: Props) => {
   const [moveOptions, setMoveOptions] = useState<string[]>([]);
+  const [abilityOptions, setAbilityOptions] = useState<string[]>([]);
   const [moveSearch, setMoveSearch] = useState<string[]>(["", "", "", ""]);
   const [itemSearch, setItemSearch] = useState(member.item);
 
   useEffect(() => {
     fetchPokemonMoves(member.pokemonId).then(setMoveOptions);
+    fetchPokemonAbilities(member.pokemonId).then((abilities) => {
+      setAbilityOptions(abilities);
+      // Auto-pick first ability if none set
+      if (!member.ability && abilities.length > 0) {
+        onChange({ ...member, ability: abilities[0] });
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [member.pokemonId]);
 
   useEffect(() => {
@@ -61,15 +72,20 @@ export const PokemonDetailEditor = ({ member, onChange }: Props) => {
     onChange({ ...member, ivs: { ...member.ivs, [k]: clamp(v, 0, MAX_IV) } });
   };
 
-  const itemMatches =
-    itemSearch.length >= 1 && itemSearch !== member.item
-      ? ITEMS.filter((i) => i.toLowerCase().includes(itemSearch.toLowerCase())).slice(0, 8)
-      : [];
+  // Item search supports searching by both English key and Spanish label.
+  const itemMatches = useMemo(() => {
+    const q = itemSearch.toLowerCase().trim();
+    if (q.length < 1 || itemSearch === member.item) return [];
+    return ITEMS.filter((i) => {
+      const es = (ITEM_ES[i] ?? "").toLowerCase();
+      return i.toLowerCase().includes(q) || es.includes(q);
+    }).slice(0, 8);
+  }, [itemSearch, member.item]);
 
   const moveMatches = (i: number) => {
     const q = moveSearch[i].toLowerCase();
     if (q.length < 2) return [];
-    return moveOptions.filter((m) => m.includes(q)).slice(0, 6);
+    return moveOptions.filter((m) => m.toLowerCase().includes(q)).slice(0, 6);
   };
 
   return (
@@ -83,10 +99,20 @@ export const PokemonDetailEditor = ({ member, onChange }: Props) => {
           <div className="relative">
             <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-foreground/40" />
             <Input
-              value={itemSearch}
+              value={itemSearch ? ITEM_ES[itemSearch] ?? itemSearch : ""}
               onChange={(e) => setItemSearch(e.target.value)}
-              onBlur={() => onChange({ ...member, item: itemSearch })}
-              placeholder="Life Orb, Leftovers..."
+              onBlur={() => {
+                // Only commit if the typed value matches a known item
+                const match = ITEMS.find(
+                  (i) =>
+                    i.toLowerCase() === itemSearch.toLowerCase() ||
+                    (ITEM_ES[i] ?? "").toLowerCase() === itemSearch.toLowerCase()
+                );
+                if (match) onChange({ ...member, item: match });
+                else if (itemSearch === "") onChange({ ...member, item: "" });
+                else setItemSearch(member.item);
+              }}
+              placeholder="Vidasfera, Restos..."
               className="pl-7 h-9 text-sm bg-background/60 border-primary/30"
             />
           </div>
@@ -97,12 +123,12 @@ export const PokemonDetailEditor = ({ member, onChange }: Props) => {
                   key={it}
                   type="button"
                   onClick={() => {
-                    setItemSearch(it);
+                    setItemSearch(ITEM_ES[it] ?? it);
                     onChange({ ...member, item: it });
                   }}
                   className="w-full text-left px-3 py-1.5 text-xs hover:bg-primary/10 text-foreground/90"
                 >
-                  {it}
+                  {ITEM_ES[it] ?? it}
                 </button>
               ))}
             </div>
@@ -120,11 +146,35 @@ export const PokemonDetailEditor = ({ member, onChange }: Props) => {
           >
             {NATURES.map((n) => (
               <option key={n} value={n} className="bg-card">
-                {n}
+                {NATURE_ES[n]}
               </option>
             ))}
           </select>
         </div>
+      </div>
+
+      {/* Ability */}
+      <div>
+        <label className="font-display text-[10px] tracking-widest text-foreground/60 mb-1 block">
+          HABILIDAD
+        </label>
+        {abilityOptions.length > 0 ? (
+          <select
+            value={member.ability}
+            onChange={(e) => onChange({ ...member, ability: e.target.value })}
+            className="w-full h-9 rounded-md bg-background/60 border border-primary/30 px-2 text-sm text-foreground focus:border-primary focus:outline-none"
+          >
+            {abilityOptions.map((a) => (
+              <option key={a} value={a} className="bg-card">
+                {a}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <div className="h-9 rounded-md bg-background/60 border border-primary/30 px-2 text-xs text-foreground/40 flex items-center">
+            Cargando habilidades...
+          </div>
+        )}
       </div>
 
       {/* Moves */}
@@ -145,7 +195,7 @@ export const PokemonDetailEditor = ({ member, onChange }: Props) => {
                     setMoveSearch(ns);
                     setMove(i, e.target.value);
                   }}
-                  placeholder={`Move ${i + 1}`}
+                  placeholder={`Movimiento ${i + 1}`}
                   className="h-9 text-sm bg-background/60 border-primary/30"
                 />
                 {matches.length > 0 && (
@@ -195,7 +245,7 @@ export const PokemonDetailEditor = ({ member, onChange }: Props) => {
           {STAT_KEYS.map((k) => (
             <div key={k}>
               <div className="font-display text-[9px] tracking-wider text-foreground/50 mb-0.5 text-center">
-                {STAT_LABELS[k]}
+                {STAT_LABELS_SHORT[k]}
               </div>
               <Input
                 type="number"
@@ -220,7 +270,7 @@ export const PokemonDetailEditor = ({ member, onChange }: Props) => {
           {STAT_KEYS.map((k) => (
             <div key={k}>
               <div className="font-display text-[9px] tracking-wider text-foreground/50 mb-0.5 text-center">
-                {STAT_LABELS[k]}
+                {STAT_LABELS_SHORT[k]}
               </div>
               <Input
                 type="number"
