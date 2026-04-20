@@ -4,11 +4,15 @@ import { PokemonSprite } from "./PokemonSprite";
 
 interface BuildCardProps {
   build: Build;
+  onOpen?: () => void;
 }
 
-export const BuildCard = ({ build }: BuildCardProps) => {
+export const BuildCard = ({ build, onOpen }: BuildCardProps) => {
   return (
-    <article className="neon-border bg-card/80 backdrop-blur-xl p-5 rounded-lg group transition-transform hover:-translate-y-1 duration-300">
+    <article
+      onClick={onOpen}
+      className="neon-border bg-card/80 backdrop-blur-xl p-5 rounded-lg group transition-transform hover:-translate-y-1 duration-300 cursor-pointer"
+    >
       <header className="flex items-start justify-between gap-3 mb-3">
         <div>
           <h3 className="font-display text-lg font-bold tracking-wide text-foreground group-hover:neon-text-red transition-all">
@@ -48,7 +52,13 @@ export const BuildCard = ({ build }: BuildCardProps) => {
             <span className="font-display">{build.views.toLocaleString()}</span>
           </span>
         </div>
-        <button className="font-display tracking-wider text-primary hover:text-accent transition-colors">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onOpen?.();
+          }}
+          className="font-display tracking-wider text-primary hover:text-accent transition-colors"
+        >
           VER →
         </button>
       </footer>

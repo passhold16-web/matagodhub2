@@ -2,10 +2,12 @@ import { useMemo, useState, useEffect, useCallback } from "react";
 import { TIERS, type Tier } from "@/data/mockBuilds";
 import { BuildCard } from "./BuildCard";
 import { CreateBuildModal } from "./CreateBuildModal";
+import { BuildDetailModal } from "./BuildDetailModal";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Plus, Loader2 } from "lucide-react";
+import type { TeamMember } from "@/data/pokemonMeta";
 
 type Filter = "ALL" | Tier;
 
@@ -16,6 +18,7 @@ interface BuildRow {
   tier: string;
   description: string | null;
   pokemon_ids: number[];
+  team_data: TeamMember[] | null;
   votes_count: number;
   created_at: string;
 }
@@ -26,6 +29,7 @@ export const BuildsGallery = () => {
   const [builds, setBuilds] = useState<BuildRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const [detailBuild, setDetailBuild] = useState<BuildRow | null>(null);
 
   const fetchBuilds = useCallback(async () => {
     setLoading(true);
@@ -33,7 +37,7 @@ export const BuildsGallery = () => {
       .from("builds")
       .select("*")
       .order("created_at", { ascending: false });
-    if (data) setBuilds(data as BuildRow[]);
+    if (data) setBuilds(data as unknown as BuildRow[]);
     setLoading(false);
   }, []);
 
@@ -117,6 +121,7 @@ export const BuildsGallery = () => {
                     votes: b.votes_count,
                     views: 0,
                   }}
+                  onOpen={() => setDetailBuild(b)}
                 />
               </div>
             ))}
@@ -147,6 +152,12 @@ export const BuildsGallery = () => {
         open={modalOpen}
         onOpenChange={setModalOpen}
         onCreated={fetchBuilds}
+      />
+
+      <BuildDetailModal
+        open={!!detailBuild}
+        onOpenChange={(o) => !o && setDetailBuild(null)}
+        build={detailBuild}
       />
     </section>
   );
