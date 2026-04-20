@@ -114,13 +114,14 @@ export const BuildsGallery = () => {
                   build={{
                     id: b.id,
                     name: b.name,
-                    author: "Trainer",
+                    author: b.author?.username ?? "Trainer",
                     tier: b.tier as Tier,
                     description: b.description ?? "",
                     pokemonIds: b.pokemon_ids,
                     votes: b.votes_count,
                     views: 0,
                   }}
+                  authorRole={b.author?.role ?? null}
                   onOpen={() => setDetailBuild(b)}
                 />
               </div>
