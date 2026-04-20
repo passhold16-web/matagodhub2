@@ -1,15 +1,49 @@
-import { useMemo, useState } from "react";
-import { MOCK_BUILDS, TIERS, type Tier } from "@/data/mockBuilds";
+import { useMemo, useState, useEffect, useCallback } from "react";
+import { TIERS, type Tier } from "@/data/mockBuilds";
 import { BuildCard } from "./BuildCard";
+import { CreateBuildModal } from "./CreateBuildModal";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import { Plus, Loader2 } from "lucide-react";
 
 type Filter = "ALL" | Tier;
 
+interface BuildRow {
+  id: string;
+  user_id: string;
+  name: string;
+  tier: string;
+  description: string | null;
+  pokemon_ids: number[];
+  votes_count: number;
+  created_at: string;
+}
+
 export const BuildsGallery = () => {
+  const { user } = useAuth();
   const [filter, setFilter] = useState<Filter>("ALL");
+  const [builds, setBuilds] = useState<BuildRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const fetchBuilds = useCallback(async () => {
+    setLoading(true);
+    const { data } = await supabase
+      .from("builds")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (data) setBuilds(data as BuildRow[]);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    fetchBuilds();
+  }, [fetchBuilds]);
 
   const filtered = useMemo(
-    () => (filter === "ALL" ? MOCK_BUILDS : MOCK_BUILDS.filter((b) => b.tier === filter)),
-    [filter]
+    () => (filter === "ALL" ? builds : builds.filter((b) => b.tier === filter)),
+    [filter, builds]
   );
 
   const filters: Filter[] = ["ALL", ...TIERS];
@@ -31,7 +65,6 @@ export const BuildsGallery = () => {
           </p>
         </div>
 
-        {/* Tier filters */}
         <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3 mb-10">
           {filters.map((f) => {
             const active = filter === f;
@@ -49,26 +82,72 @@ export const BuildsGallery = () => {
               </button>
             );
           })}
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filtered.map((b, i) => (
-            <div
-              key={b.id}
-              className="animate-fade-in-up"
-              style={{ animationDelay: `${i * 60}ms` }}
+          {user && (
+            <Button
+              onClick={() => setModalOpen(true)}
+              className="ml-2 font-display text-sm tracking-[0.2em] bg-gradient-neon text-background hover:opacity-90 shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
             >
-              <BuildCard build={b} />
-            </div>
-          ))}
+              <Plus size={16} className="mr-1" />
+              NUEVA BUILD
+            </Button>
+          )}
         </div>
 
-        {filtered.length === 0 && (
-          <p className="text-center text-muted-foreground py-20">
-            No hay builds en este tier todavía.
-          </p>
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 size={32} className="animate-spin text-primary" />
+          </div>
+        ) : filtered.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filtered.map((b, i) => (
+              <div
+                key={b.id}
+                className="animate-fade-in-up"
+                style={{ animationDelay: `${i * 60}ms` }}
+              >
+                <BuildCard
+                  build={{
+                    id: b.id,
+                    name: b.name,
+                    author: "Trainer",
+                    tier: b.tier as Tier,
+                    description: b.description ?? "",
+                    pokemonIds: b.pokemon_ids,
+                    votes: b.votes_count,
+                    views: 0,
+                  }}
+                />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-20 space-y-4">
+            <p className="text-muted-foreground font-display tracking-wider text-lg">
+              Sé el primero en dominar el meta. ¡Crea una build!
+            </p>
+            {user ? (
+              <Button
+                onClick={() => setModalOpen(true)}
+                className="font-display tracking-[0.3em] bg-gradient-neon text-background hover:opacity-90"
+              >
+                <Plus size={16} className="mr-1" />
+                CREAR BUILD
+              </Button>
+            ) : (
+              <p className="text-foreground/50 text-sm">
+                Inicia sesión para crear la primera.
+              </p>
+            )}
+          </div>
         )}
       </div>
+
+      <CreateBuildModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        onCreated={fetchBuilds}
+      />
     </section>
   );
 };
