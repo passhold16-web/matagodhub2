@@ -26,7 +26,7 @@ export const Hero = ({ onPrimary, onSecondary }: HeroProps) => {
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none animate-float">
         <div className="relative">
           <div className="absolute inset-0 blur-3xl bg-primary/40 rounded-full scale-150" />
-          <PokemonSprite id={150} size={220} className="relative drop-shadow-[0_0_40px_hsl(var(--primary))]" />
+          <PokemonSprite id={150} size={220} priority className="relative drop-shadow-[0_0_40px_hsl(var(--primary))]" />
         </div>
       </div>
 
