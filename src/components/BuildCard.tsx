@@ -1,29 +1,32 @@
-import { Heart, Eye, User } from "lucide-react";
+import { Heart, Eye } from "lucide-react";
 import type { Build } from "@/data/mockBuilds";
 import { PokemonSprite } from "./PokemonSprite";
+import { AuthorBadge } from "./AuthorBadge";
 
 interface BuildCardProps {
   build: Build;
+  authorRole?: string | null;
   onOpen?: () => void;
 }
 
-export const BuildCard = ({ build, onOpen }: BuildCardProps) => {
+export const BuildCard = ({ build, authorRole, onOpen }: BuildCardProps) => {
   return (
     <article
       onClick={onOpen}
       className="neon-border bg-card/80 backdrop-blur-xl p-5 rounded-lg group transition-transform hover:-translate-y-1 duration-300 cursor-pointer"
     >
-      <header className="flex items-start justify-between gap-3 mb-3">
-        <div>
-          <h3 className="font-display text-lg font-bold tracking-wide text-foreground group-hover:neon-text-red transition-all">
+      <header className="flex items-start justify-between gap-3 mb-2">
+        <div className="min-w-0">
+          <h3 className="font-display text-lg font-bold tracking-wide text-foreground group-hover:neon-text-red transition-all truncate">
             {build.name}
           </h3>
-          <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
-            <User size={12} />
-            <span>{build.author}</span>
-          </div>
+          <AuthorBadge
+            username={build.author}
+            role={authorRole}
+            className="mt-1"
+          />
         </div>
-        <span className={`tier-badge tier-${build.tier}`}>{build.tier}</span>
+        <span className={`tier-badge tier-${build.tier} shrink-0`}>{build.tier}</span>
       </header>
 
       <p className="text-sm text-foreground/70 mb-4 line-clamp-2 min-h-[2.5rem]">
