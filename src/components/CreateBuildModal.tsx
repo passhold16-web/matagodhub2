@@ -6,10 +6,18 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PokemonSprite } from "./PokemonSprite";
+import { PokemonDetailEditor } from "./PokemonDetailEditor";
 import { TIERS, type Tier } from "@/data/mockBuilds";
+import { createMember, type TeamMember } from "@/data/pokemonMeta";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -41,7 +49,8 @@ export const CreateBuildModal = ({ open, onOpenChange, onCreated }: CreateBuildM
   const [name, setName] = useState("");
   const [tier, setTier] = useState<Tier>("OU");
   const [description, setDescription] = useState("");
-  const [team, setTeam] = useState<number[]>([]);
+  const [team, setTeam] = useState<TeamMember[]>([]);
+  const [activePanel, setActivePanel] = useState<string | undefined>();
   const [search, setSearch] = useState("");
   const [allPokemon, setAllPokemon] = useState<{ id: number; name: string }[]>([]);
   const [loading, setLoading] = useState(false);
@@ -59,20 +68,29 @@ export const CreateBuildModal = ({ open, onOpenChange, onCreated }: CreateBuildM
 
   const filtered =
     search.length >= 2
-      ? allPokemon.filter((p) => p.name.includes(search.toLowerCase())).slice(0, 30)
+      ? allPokemon
+          .filter((p) => p.name.includes(search.toLowerCase()))
+          .filter((p) => !team.some((m) => m.pokemonId === p.id))
+          .slice(0, 30)
       : [];
 
   const addPokemon = useCallback(
-    (id: number) => {
-      if (team.length >= 6 || team.includes(id)) return;
-      setTeam((t) => [...t, id]);
+    (id: number, name: string) => {
+      if (team.length >= 6 || team.some((m) => m.pokemonId === id)) return;
+      const next = [...team, createMember(id, name)];
+      setTeam(next);
       setSearch("");
+      setActivePanel(`m-${next.length - 1}`);
       searchRef.current?.focus();
     },
     [team]
   );
 
-  const removePokemon = (id: number) => setTeam((t) => t.filter((x) => x !== id));
+  const removePokemon = (id: number) =>
+    setTeam((t) => t.filter((m) => m.pokemonId !== id));
+
+  const updateMember = (idx: number, next: TeamMember) =>
+    setTeam((t) => t.map((m, i) => (i === idx ? next : m)));
 
   const reset = () => {
     setName("");
@@ -80,6 +98,7 @@ export const CreateBuildModal = ({ open, onOpenChange, onCreated }: CreateBuildM
     setDescription("");
     setTeam([]);
     setSearch("");
+    setActivePanel(undefined);
   };
 
   const handleSubmit = async () => {
@@ -99,7 +118,8 @@ export const CreateBuildModal = ({ open, onOpenChange, onCreated }: CreateBuildM
       name: name.trim(),
       tier,
       description: description.trim() || null,
-      pokemon_ids: team,
+      pokemon_ids: team.map((m) => m.pokemonId),
+      team_data: team as unknown as never,
     });
     setSubmitting(false);
 
@@ -116,13 +136,13 @@ export const CreateBuildModal = ({ open, onOpenChange, onCreated }: CreateBuildM
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="glass-strong border-primary/40 max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="glass-strong border-primary/40 max-w-2xl max-h-[92vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-display text-2xl tracking-wider neon-text-red">
             NUEVA BUILD
           </DialogTitle>
           <DialogDescription className="text-foreground/60">
-            Arma tu equipo competitivo y compártelo con la comunidad.
+            Configura cada Pokémon a nivel competitivo: movimientos, naturaleza, EVs, IVs y objeto.
           </DialogDescription>
         </DialogHeader>
 
@@ -144,7 +164,7 @@ export const CreateBuildModal = ({ open, onOpenChange, onCreated }: CreateBuildM
             <label className="font-display text-xs tracking-widest text-foreground/70 mb-1 block">
               TIER
             </label>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               {TIERS.map((t) => (
                 <button
                   key={t}
@@ -179,20 +199,22 @@ export const CreateBuildModal = ({ open, onOpenChange, onCreated }: CreateBuildM
             <label className="font-display text-xs tracking-widest text-foreground/70 mb-1 block">
               EQUIPO ({team.length}/6)
             </label>
+
+            {/* Slot grid */}
             <div className="grid grid-cols-6 gap-2 mb-3">
               {Array.from({ length: 6 }).map((_, i) => {
-                const pId = team[i];
+                const m = team[i];
                 return (
                   <div
                     key={i}
                     className="aspect-square rounded-md border border-primary/20 bg-background/40 flex items-center justify-center relative group"
                   >
-                    {pId ? (
+                    {m ? (
                       <>
-                        <PokemonSprite id={pId} size={40} />
+                        <PokemonSprite id={m.pokemonId} size={40} />
                         <button
                           type="button"
-                          onClick={() => removePokemon(pId)}
+                          onClick={() => removePokemon(m.pokemonId)}
                           className="absolute -top-1.5 -right-1.5 bg-destructive text-destructive-foreground rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
                           aria-label="Quitar"
                         >
@@ -207,14 +229,15 @@ export const CreateBuildModal = ({ open, onOpenChange, onCreated }: CreateBuildM
               })}
             </div>
 
+            {/* Search to add */}
             {team.length < 6 && (
-              <div className="relative">
+              <div className="relative mb-3">
                 <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40" />
                 <Input
                   ref={searchRef}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Buscar Pokémon (mín. 2 letras)..."
+                  placeholder="Añadir Pokémon (mín. 2 letras)..."
                   className="pl-9 bg-background/60 border-primary/30 focus:border-primary"
                 />
                 {loading && (
@@ -227,9 +250,8 @@ export const CreateBuildModal = ({ open, onOpenChange, onCreated }: CreateBuildM
                       <button
                         key={p.id}
                         type="button"
-                        onClick={() => addPokemon(p.id)}
-                        disabled={team.includes(p.id)}
-                        className="w-full flex items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-primary/10 transition-colors disabled:opacity-30"
+                        onClick={() => addPokemon(p.id, p.name)}
+                        className="w-full flex items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-primary/10 transition-colors"
                       >
                         <PokemonSprite id={p.id} size={28} />
                         <span className="capitalize font-display tracking-wide text-foreground/90">
@@ -241,6 +263,43 @@ export const CreateBuildModal = ({ open, onOpenChange, onCreated }: CreateBuildM
                   </div>
                 )}
               </div>
+            )}
+
+            {/* Per-pokemon accordion */}
+            {team.length > 0 && (
+              <Accordion
+                type="single"
+                collapsible
+                value={activePanel}
+                onValueChange={setActivePanel}
+                className="border border-primary/20 rounded-md bg-background/30"
+              >
+                {team.map((m, idx) => (
+                  <AccordionItem
+                    key={`${m.pokemonId}-${idx}`}
+                    value={`m-${idx}`}
+                    className="border-primary/15 last:border-b-0"
+                  >
+                    <AccordionTrigger className="hover:no-underline px-3">
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <PokemonSprite id={m.pokemonId} size={28} />
+                        <span className="font-display text-sm tracking-wide capitalize text-foreground/90 truncate">
+                          {m.pokemonName}
+                        </span>
+                        <span className="ml-auto text-[10px] text-foreground/40 font-display tracking-wider">
+                          {m.nature}
+                        </span>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <PokemonDetailEditor
+                        member={m}
+                        onChange={(next) => updateMember(idx, next)}
+                      />
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
             )}
           </div>
 
