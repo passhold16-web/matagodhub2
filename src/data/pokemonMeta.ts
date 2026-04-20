@@ -71,20 +71,48 @@ export const createMember = (id: number, name: string): TeamMember => ({
   ivs: maxIVs(),
 });
 
-// Move suggestions cache from PokeAPI
+// Move suggestions cache from PokeAPI (Spanish names when available).
 const moveCache = new Map<number, string[]>();
+const moveTranslationCache = new Map<string, string>();
+
+// Translate a single move slug (e.g. "thunder-punch") to Spanish.
+// Falls back to the prettified English slug if PokeAPI has no ES name.
+export async function translateMoveToEs(slug: string): Promise<string> {
+  if (!slug) return slug;
+  const key = slug.toLowerCase().replace(/\s+/g, "-");
+  if (moveTranslationCache.has(key)) return moveTranslationCache.get(key)!;
+  try {
+    const res = await fetch(`https://pokeapi.co/api/v2/move/${key}`);
+    if (!res.ok) throw new Error("not found");
+    const data = await res.json();
+    const es = (data.names as { name: string; language: { name: string } }[]).find(
+      (n) => n.language.name === "es"
+    );
+    const result = es?.name ?? slug.replace(/-/g, " ");
+    moveTranslationCache.set(key, result);
+    return result;
+  } catch {
+    const fallback = slug.replace(/-/g, " ");
+    moveTranslationCache.set(key, fallback);
+    return fallback;
+  }
+}
 
 export async function fetchPokemonMoves(id: number): Promise<string[]> {
   if (moveCache.has(id)) return moveCache.get(id)!;
   try {
     const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
     const data = await res.json();
-    const moves: string[] = (data.moves as { move: { name: string } }[])
-      .map((m) => m.move.name.replace(/-/g, " "))
-      .sort();
-    moveCache.set(id, moves);
-    return moves;
+    const slugs: string[] = (data.moves as { move: { name: string } }[]).map(
+      (m) => m.move.name
+    );
+    // Translate in parallel (cached after first run).
+    const translated = await Promise.all(slugs.map((s) => translateMoveToEs(s)));
+    const sorted = translated.sort((a, b) => a.localeCompare(b, "es"));
+    moveCache.set(id, sorted);
+    return sorted;
   } catch {
     return [];
   }
 }
+
