@@ -21,6 +21,7 @@ export type Database = {
           id: string
           name: string
           pokemon_ids: number[]
+          team_data: Json | null
           tier: string
           updated_at: string
           user_id: string
@@ -32,6 +33,7 @@ export type Database = {
           id?: string
           name: string
           pokemon_ids: number[]
+          team_data?: Json | null
           tier: string
           updated_at?: string
           user_id: string
@@ -43,6 +45,7 @@ export type Database = {
           id?: string
           name?: string
           pokemon_ids?: number[]
+          team_data?: Json | null
           tier?: string
           updated_at?: string
           user_id?: string
