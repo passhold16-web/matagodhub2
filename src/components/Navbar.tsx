@@ -5,10 +5,12 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 
 const NAV_ITEMS = [
-  { id: "home", label: "Inicio" },
-  { id: "builds", label: "Builds" },
-  { id: "torneos", label: "Torneos" },
-  { id: "comunidad", label: "Comunidad" },
+  { id: "home", label: "Inicio", route: false },
+  { id: "builds", label: "Builds", route: false },
+  { id: "torneos", label: "Torneos", route: false },
+  { id: "foro", label: "Foro", route: true, path: "/foro" },
+  { id: "chat", label: "Chat", route: true, path: "/chat" },
+  { id: "comunidad", label: "Comunidad", route: false },
 ];
 
 interface NavbarProps {
