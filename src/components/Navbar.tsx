@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { LogOut, Menu, User as UserIcon, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { LogOut, Menu, Settings, User as UserIcon, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 
 const NAV_ITEMS = [
-  { id: "home", label: "Home" },
+  { id: "home", label: "Inicio" },
   { id: "builds", label: "Builds" },
   { id: "torneos", label: "Torneos" },
   { id: "comunidad", label: "Comunidad" },
@@ -76,12 +76,25 @@ export const Navbar = ({ active, onNavigate }: NavbarProps) => {
         <div className="hidden md:flex items-center gap-2 shrink-0">
           {!loading && user ? (
             <>
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-md glass border border-accent/30">
+              <button
+                onClick={() => navigate(`/perfil/${profile?.username ?? ""}`)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-md glass border border-accent/30 hover:border-accent transition-colors"
+                aria-label="Ver mi perfil"
+              >
                 <UserIcon size={14} className="text-accent" />
                 <span className="font-display text-xs tracking-widest text-accent max-w-[120px] truncate">
                   {displayName}
                 </span>
-              </div>
+              </button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate("/perfil/editar")}
+                className="font-display text-xs tracking-widest text-foreground/70 hover:text-accent hover:bg-accent/10"
+                aria-label="Editar perfil"
+              >
+                <Settings size={14} />
+              </Button>
               <Button
                 variant="ghost"
                 size="sm"
@@ -128,24 +141,44 @@ export const Navbar = ({ active, onNavigate }: NavbarProps) => {
               </button>
             ))}
 
-            <div className="border-t border-primary/20 mt-2 pt-3">
+            <div className="border-t border-primary/20 mt-2 pt-3 space-y-2">
               {!loading && user ? (
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2 px-3 py-2 rounded-md glass border border-accent/30 flex-1 min-w-0">
+                <>
+                  <button
+                    onClick={() => {
+                      setOpen(false);
+                      navigate(`/perfil/${profile?.username ?? ""}`);
+                    }}
+                    className="w-full flex items-center gap-2 px-3 py-2 rounded-md glass border border-accent/30 text-left"
+                  >
                     <UserIcon size={14} className="text-accent shrink-0" />
-                    <span className="font-display text-xs tracking-widest text-accent truncate">
+                    <span className="font-display text-xs tracking-widest text-accent truncate flex-1">
                       {displayName}
                     </span>
+                  </button>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setOpen(false);
+                        navigate("/perfil/editar");
+                      }}
+                      className="flex-1 font-display text-xs tracking-widest border-accent/40 text-accent"
+                    >
+                      <Settings size={12} className="mr-1.5" /> EDITAR PERFIL
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleSignOut}
+                      className="font-display text-xs tracking-widest text-foreground/70"
+                      aria-label="Cerrar sesión"
+                    >
+                      <LogOut size={14} />
+                    </Button>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleSignOut}
-                    className="font-display text-xs tracking-widest text-foreground/70"
-                  >
-                    <LogOut size={14} />
-                  </Button>
-                </div>
+                </>
               ) : !loading ? (
                 <Button
                   onClick={() => {

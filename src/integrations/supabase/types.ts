@@ -107,6 +107,54 @@ export type Database = {
         }
         Relationships: []
       }
+      tournaments: {
+        Row: {
+          contact_url: string | null
+          created_at: string
+          description: string | null
+          event_date: string
+          format: string | null
+          id: string
+          max_players: number
+          name: string
+          prize: string | null
+          status: string
+          tier: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          contact_url?: string | null
+          created_at?: string
+          description?: string | null
+          event_date: string
+          format?: string | null
+          id?: string
+          max_players?: number
+          name: string
+          prize?: string | null
+          status?: string
+          tier?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          contact_url?: string | null
+          created_at?: string
+          description?: string | null
+          event_date?: string
+          format?: string | null
+          id?: string
+          max_players?: number
+          name?: string
+          prize?: string | null
+          status?: string
+          tier?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       votes: {
         Row: {
           build_id: string

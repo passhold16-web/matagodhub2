@@ -31,7 +31,7 @@ export const CommunitySection = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
             {[
-              { icon: MessageSquare, label: "Chat Live" },
+              { icon: MessageSquare, label: "Chat en vivo" },
               { icon: Users, label: "Perfiles" },
               { icon: Zap, label: "Rankings" },
             ].map((f) => (

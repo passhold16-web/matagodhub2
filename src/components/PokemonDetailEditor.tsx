@@ -29,7 +29,9 @@ export const PokemonDetailEditor = ({ member, onChange }: Props) => {
   const [moveOptions, setMoveOptions] = useState<string[]>([]);
   const [abilityOptions, setAbilityOptions] = useState<string[]>([]);
   const [moveSearch, setMoveSearch] = useState<string[]>(["", "", "", ""]);
-  const [itemSearch, setItemSearch] = useState(member.item);
+  const [itemSearch, setItemSearch] = useState(
+    member.item ? ITEM_ES[member.item] ?? member.item : ""
+  );
 
   useEffect(() => {
     fetchPokemonMoves(member.pokemonId).then(setMoveOptions);
@@ -44,7 +46,8 @@ export const PokemonDetailEditor = ({ member, onChange }: Props) => {
   }, [member.pokemonId]);
 
   useEffect(() => {
-    setItemSearch(member.item);
+    // Sync external changes (e.g., when editing an existing build)
+    setItemSearch(member.item ? ITEM_ES[member.item] ?? member.item : "");
   }, [member.item]);
 
   const evTotal = useMemo(
@@ -73,14 +76,17 @@ export const PokemonDetailEditor = ({ member, onChange }: Props) => {
   };
 
   // Item search supports searching by both English key and Spanish label.
+  const [itemFocused, setItemFocused] = useState(false);
   const itemMatches = useMemo(() => {
     const q = itemSearch.toLowerCase().trim();
-    if (q.length < 1 || itemSearch === member.item) return [];
-    return ITEMS.filter((i) => {
+    if (!itemFocused) return [];
+    const filtered = ITEMS.filter((i) => {
+      if (q.length === 0) return true;
       const es = (ITEM_ES[i] ?? "").toLowerCase();
       return i.toLowerCase().includes(q) || es.includes(q);
-    }).slice(0, 8);
-  }, [itemSearch, member.item]);
+    });
+    return filtered.slice(0, 12);
+  }, [itemSearch, itemFocused]);
 
   const moveMatches = (i: number) => {
     const q = moveSearch[i].toLowerCase();
@@ -99,32 +105,46 @@ export const PokemonDetailEditor = ({ member, onChange }: Props) => {
           <div className="relative">
             <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-foreground/40" />
             <Input
-              value={itemSearch ? ITEM_ES[itemSearch] ?? itemSearch : ""}
+              value={itemSearch}
               onChange={(e) => setItemSearch(e.target.value)}
+              onFocus={() => setItemFocused(true)}
               onBlur={() => {
-                // Only commit if the typed value matches a known item
+                // Delay so click on dropdown still fires
+                setTimeout(() => setItemFocused(false), 150);
+                const q = itemSearch.trim();
+                if (q === "") {
+                  onChange({ ...member, item: "" });
+                  return;
+                }
                 const match = ITEMS.find(
                   (i) =>
-                    i.toLowerCase() === itemSearch.toLowerCase() ||
-                    (ITEM_ES[i] ?? "").toLowerCase() === itemSearch.toLowerCase()
+                    i.toLowerCase() === q.toLowerCase() ||
+                    (ITEM_ES[i] ?? "").toLowerCase() === q.toLowerCase()
                 );
-                if (match) onChange({ ...member, item: match });
-                else if (itemSearch === "") onChange({ ...member, item: "" });
-                else setItemSearch(member.item);
+                if (match) {
+                  setItemSearch(ITEM_ES[match] ?? match);
+                  onChange({ ...member, item: match });
+                } else {
+                  // Restore previous valid item label if user typed garbage
+                  setItemSearch(member.item ? ITEM_ES[member.item] ?? member.item : "");
+                }
               }}
-              placeholder="Vidasfera, Restos..."
+              placeholder="Toca para elegir objeto..."
               className="pl-7 h-9 text-sm bg-background/60 border-primary/30"
             />
           </div>
           {itemMatches.length > 0 && (
-            <div className="absolute z-30 left-0 right-0 mt-1 max-h-40 overflow-y-auto rounded-md border border-primary/30 bg-card/95 backdrop-blur-xl shadow-lg">
+            <div className="absolute z-30 left-0 right-0 mt-1 max-h-48 overflow-y-auto rounded-md border border-primary/30 bg-card/95 backdrop-blur-xl shadow-lg">
               {itemMatches.map((it) => (
                 <button
                   key={it}
                   type="button"
-                  onClick={() => {
+                  onMouseDown={(e) => {
+                    // mousedown fires before blur — prevents the blur reset
+                    e.preventDefault();
                     setItemSearch(ITEM_ES[it] ?? it);
                     onChange({ ...member, item: it });
+                    setItemFocused(false);
                   }}
                   className="w-full text-left px-3 py-1.5 text-xs hover:bg-primary/10 text-foreground/90"
                 >
