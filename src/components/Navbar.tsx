@@ -5,10 +5,12 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 
 const NAV_ITEMS = [
-  { id: "home", label: "Inicio" },
-  { id: "builds", label: "Builds" },
-  { id: "torneos", label: "Torneos" },
-  { id: "comunidad", label: "Comunidad" },
+  { id: "home", label: "Inicio", route: false },
+  { id: "builds", label: "Builds", route: false },
+  { id: "torneos", label: "Torneos", route: false },
+  { id: "foro", label: "Foro", route: true, path: "/foro" },
+  { id: "chat", label: "Chat", route: true, path: "/chat" },
+  { id: "comunidad", label: "Comunidad", route: false },
 ];
 
 interface NavbarProps {
@@ -21,12 +23,22 @@ export const Navbar = ({ active, onNavigate }: NavbarProps) => {
   const { user, profile, signOut, loading } = useAuth();
   const navigate = useNavigate();
 
-  const handleClick = (id: string) => {
-    onNavigate(id);
+  const handleClick = (item: (typeof NAV_ITEMS)[number]) => {
     setOpen(false);
-    const el = document.getElementById(id);
+    if (item.route && item.path) {
+      navigate(item.path);
+      return;
+    }
+    onNavigate(item.id);
+    if (window.location.pathname !== "/") {
+      navigate(`/#${item.id}`);
+      return;
+    }
+    const el = document.getElementById(item.id);
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   };
+
+  const goHome = () => handleClick(NAV_ITEMS[0]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -39,7 +51,7 @@ export const Navbar = ({ active, onNavigate }: NavbarProps) => {
     <header className="fixed top-0 left-0 right-0 z-50 glass-strong border-b border-primary/30">
       <div className="container flex h-16 items-center justify-between gap-4">
         <button
-          onClick={() => handleClick("home")}
+          onClick={goHome}
           className="flex items-center gap-2 group shrink-0"
           aria-label="MATAGOD HUB inicio"
         >
@@ -57,7 +69,7 @@ export const Navbar = ({ active, onNavigate }: NavbarProps) => {
           {NAV_ITEMS.map((item) => (
             <button
               key={item.id}
-              onClick={() => handleClick(item.id)}
+              onClick={() => handleClick(item)}
               className={`relative px-4 py-2 font-display text-sm tracking-wider transition-colors ${
                 active === item.id
                   ? "text-primary"
@@ -132,7 +144,7 @@ export const Navbar = ({ active, onNavigate }: NavbarProps) => {
             {NAV_ITEMS.map((item) => (
               <button
                 key={item.id}
-                onClick={() => handleClick(item.id)}
+                onClick={() => handleClick(item)}
                 className={`text-left py-3 font-display tracking-wider ${
                   active === item.id ? "text-primary" : "text-foreground/80"
                 }`}
