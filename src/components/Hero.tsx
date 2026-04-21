@@ -70,7 +70,7 @@ export const Hero = ({ onPrimary, onSecondary }: HeroProps) => {
           {[
             { v: "1.2K+", l: "BUILDS" },
             { v: "48", l: "TORNEOS" },
-            { v: "9.8K", l: "PLAYERS" },
+            { v: "9.8K", l: "JUGADORES" },
           ].map((s) => (
             <div key={s.l} className="glass rounded-lg py-3">
               <div className="font-display text-2xl md:text-3xl neon-text-gold">{s.v}</div>
