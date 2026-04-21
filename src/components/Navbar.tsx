@@ -144,7 +144,7 @@ export const Navbar = ({ active, onNavigate }: NavbarProps) => {
             {NAV_ITEMS.map((item) => (
               <button
                 key={item.id}
-                onClick={() => handleClick(item.id)}
+                onClick={() => handleClick(item)}
                 className={`text-left py-3 font-display tracking-wider ${
                   active === item.id ? "text-primary" : "text-foreground/80"
                 }`}
