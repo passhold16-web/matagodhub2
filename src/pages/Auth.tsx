@@ -8,13 +8,18 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2 } from "lucide-react";
 
+// Usernames map to a synthetic email in a reserved internal domain.
+// Keeps the UX username+password while satisfying the auth system.
+const USERNAME_DOMAIN = "matagod.local";
+const usernameToEmail = (u: string) =>
+  `${u.trim().toLowerCase().replace(/[^a-z0-9_.-]/g, "")}@${USERNAME_DOMAIN}`;
+
 const Auth = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const [mode, setMode] = useState<"login" | "signup">("login");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -24,6 +29,18 @@ const Auth = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (submitting) return;
+
+    const cleanUser = username.trim();
+    if (cleanUser.length < 3) {
+      toast.error("El usuario debe tener al menos 3 caracteres.");
+      return;
+    }
+    if (!/^[a-zA-Z0-9_.-]+$/.test(cleanUser)) {
+      toast.error("Solo letras, números, . _ - están permitidos.");
+      return;
+    }
+
+    const email = usernameToEmail(cleanUser);
     setSubmitting(true);
     try {
       if (mode === "signup") {
@@ -32,7 +49,7 @@ const Auth = () => {
           password,
           options: {
             emailRedirectTo: `${window.location.origin}/`,
-            data: { username: username || email.split("@")[0] },
+            data: { username: cleanUser },
           },
         });
         if (error) throw error;
@@ -45,13 +62,13 @@ const Auth = () => {
         navigate("/", { replace: true });
       }
     } catch (err: any) {
-      const msg = err?.message ?? "Error desconocido";
-      if (msg.toLowerCase().includes("invalid login")) {
-        toast.error("Credenciales inválidas.");
-      } else if (msg.toLowerCase().includes("already registered")) {
-        toast.error("Este email ya está registrado. Inicia sesión.");
+      const msg = (err?.message ?? "Error desconocido").toLowerCase();
+      if (msg.includes("invalid login")) {
+        toast.error("Usuario o contraseña incorrectos.");
+      } else if (msg.includes("already registered") || msg.includes("user already")) {
+        toast.error("Ese usuario ya existe. Inicia sesión.");
       } else {
-        toast.error(msg);
+        toast.error(err?.message ?? "Error desconocido");
       }
     } finally {
       setSubmitting(false);
@@ -101,34 +118,19 @@ const Auth = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {mode === "signup" && (
-              <div className="space-y-1.5">
-                <Label htmlFor="username" className="font-display text-xs tracking-widest text-foreground/80">
-                  USERNAME
-                </Label>
-                <Input
-                  id="username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="ash_ketchum"
-                  className="bg-background/60 border-primary/30 focus-visible:ring-primary"
-                  maxLength={24}
-                />
-              </div>
-            )}
-
             <div className="space-y-1.5">
-              <Label htmlFor="email" className="font-display text-xs tracking-widest text-foreground/80">
-                EMAIL
+              <Label htmlFor="username" className="font-display text-xs tracking-widest text-foreground/80">
+                USUARIO
               </Label>
               <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
-                placeholder="trainer@matagod.gg"
+                placeholder="ash_ketchum"
+                autoComplete="username"
                 className="bg-background/60 border-primary/30 focus-visible:ring-primary"
+                maxLength={24}
               />
             </div>
 
@@ -143,6 +145,7 @@ const Auth = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={6}
+                autoComplete={mode === "signup" ? "new-password" : "current-password"}
                 placeholder="••••••••"
                 className="bg-background/60 border-primary/30 focus-visible:ring-primary"
               />
