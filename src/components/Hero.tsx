@@ -66,15 +66,15 @@ export const Hero = ({ onPrimary, onSecondary }: HeroProps) => {
         <div className="absolute inset-16 rounded-full border border-primary/10 animate-[spin_50s_linear_infinite]" />
       </div>
 
-      {/* Mewtwo — bottom-right floating */}
-      <div className="absolute right-2 bottom-4 md:right-10 md:bottom-10 pointer-events-none animate-float z-20">
+      {/* Mewtwo — top-right decorative, behind content */}
+      <div className="absolute -right-6 top-20 md:right-8 md:top-24 lg:right-16 lg:top-28 pointer-events-none animate-float z-0">
         <div className="relative">
-          <div className="absolute inset-0 blur-3xl bg-primary/40 rounded-full scale-150" />
+          <div className="absolute inset-0 blur-3xl bg-primary/30 rounded-full scale-150" />
           <PokemonSprite
             id={150}
-            size={180}
+            size={140}
             priority
-            className="relative drop-shadow-[0_0_40px_hsl(var(--primary))] opacity-90"
+            className="relative drop-shadow-[0_0_40px_hsl(var(--primary))] opacity-60 md:opacity-70 md:w-[180px] md:h-[180px] lg:w-[220px] lg:h-[220px]"
           />
         </div>
       </div>
