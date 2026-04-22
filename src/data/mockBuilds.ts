@@ -1,7 +1,7 @@
 // Mock builds for MATAGOD HUB preview phase.
 // Pokémon IDs (PokeAPI national dex) — used to fetch Gen 5 animated sprites.
 
-export type Tier = "OU" | "UU" | "NU" | "LC";
+export type Tier = "OU" | "UU" | "NU" | "VGC";
 
 export interface Build {
   id: string;
@@ -14,7 +14,7 @@ export interface Build {
   views: number;
 }
 
-export const TIERS: Tier[] = ["OU", "UU", "NU", "LC"];
+export const TIERS: Tier[] = ["OU", "UU", "NU", "VGC"];
 
 export const MOCK_BUILDS: Build[] = [
   {

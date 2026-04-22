@@ -217,6 +217,7 @@
   .tier-UU { color: hsl(var(--accent)); border-color: hsl(var(--accent)); box-shadow: 0 0 12px hsl(var(--accent) / 0.5); }
   .tier-NU { color: hsl(190 100% 60%); border-color: hsl(190 100% 60%); box-shadow: 0 0 12px hsl(190 100% 60% / 0.5); }
   .tier-LC { color: hsl(280 100% 70%); border-color: hsl(280 100% 70%); box-shadow: 0 0 12px hsl(280 100% 70% / 0.5); }
+  .tier-VGC { color: hsl(320 100% 65%); border-color: hsl(320 100% 65%); box-shadow: 0 0 12px hsl(320 100% 65% / 0.5); }
 
   /* Marquee */
   .marquee {
