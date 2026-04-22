@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Loader2 } from "lucide-react";
 import type { TeamMember } from "@/data/pokemonMeta";
 
-type Filter = "ALL" | Tier;
+type Filter = Tier;
 
 export interface AuthorInfo {
   username: string;
@@ -31,7 +31,7 @@ export interface BuildRow {
 
 export const BuildsGallery = () => {
   const { user } = useAuth();
-  const [filter, setFilter] = useState<Filter>("ALL");
+  const [filter, setFilter] = useState<Filter>("OU");
   const [builds, setBuilds] = useState<BuildRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -94,11 +94,11 @@ export const BuildsGallery = () => {
   }, [fetchBuilds]);
 
   const filtered = useMemo(
-    () => (filter === "ALL" ? builds : builds.filter((b) => b.tier === filter)),
+    () => builds.filter((b) => b.tier === filter),
     [filter, builds]
   );
 
-  const filters: Filter[] = ["ALL", ...TIERS];
+  const filters: Filter[] = [...TIERS];
 
   const handleEdit = (b: BuildRow) => {
     setEditing({

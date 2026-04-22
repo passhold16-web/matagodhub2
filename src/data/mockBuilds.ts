@@ -1,7 +1,7 @@
 // Mock builds for MATAGOD HUB preview phase.
 // Pokémon IDs (PokeAPI national dex) — used to fetch Gen 5 animated sprites.
 
-export type Tier = "OU" | "UU" | "NU" | "LC";
+export type Tier = "OU" | "UU" | "NU" | "VGC";
 
 export interface Build {
   id: string;
@@ -14,7 +14,7 @@ export interface Build {
   views: number;
 }
 
-export const TIERS: Tier[] = ["OU", "UU", "NU", "LC"];
+export const TIERS: Tier[] = ["OU", "UU", "NU", "VGC"];
 
 export const MOCK_BUILDS: Build[] = [
   {
@@ -79,20 +79,20 @@ export const MOCK_BUILDS: Build[] = [
   },
   {
     id: "7",
-    name: "Little Cup Tyrants",
+    name: "VGC Doubles Core",
     author: "TinyTitan",
-    tier: "LC",
-    description: "Los más pequeños, los más letales. LC meta-defining squad.",
+    tier: "VGC",
+    description: "Núcleo doubles meta. Redireccionamiento y spread damage.",
     pokemonIds: [172, 175, 298, 360, 280, 374],
     votes: 521,
     views: 3672,
   },
   {
     id: "8",
-    name: "Baby Boom Squad",
+    name: "Trick Room VGC",
     author: "Cradlerock",
-    tier: "LC",
-    description: "Setup con Eviolite y prioridad. Domina LC sin esfuerzo.",
+    tier: "VGC",
+    description: "Setup lento con monstruos pesados. Doubles trick room.",
     pokemonIds: [438, 439, 440, 446, 447, 458],
     votes: 298,
     views: 2143,

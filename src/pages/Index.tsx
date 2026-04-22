@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Hero } from "@/components/Hero";
-import { LegendaryMarquee } from "@/components/LegendaryMarquee";
 import { BuildsGallery } from "@/components/BuildsGallery";
 import { TournamentsSection } from "@/components/TournamentsSection";
 import { CommunitySection } from "@/components/CommunitySection";
@@ -12,7 +11,6 @@ const SECTIONS = ["home", "builds", "torneos", "comunidad"];
 const Index = () => {
   const [active, setActive] = useState("home");
 
-  // Scroll spy
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -39,7 +37,6 @@ const Index = () => {
       <Navbar active={active} onNavigate={setActive} />
       <main className="flex-1">
         <Hero onPrimary={() => goTo("builds")} onSecondary={() => goTo("torneos")} />
-        <LegendaryMarquee />
         <BuildsGallery />
         <TournamentsSection />
         <CommunitySection />
