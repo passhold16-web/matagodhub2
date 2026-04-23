@@ -160,6 +160,19 @@ const Perfil = () => {
                     <p className="mt-4 font-display text-xs tracking-widest text-accent">
                       {builds.length} {builds.length === 1 ? "BUILD PUBLICADA" : "BUILDS PUBLICADAS"}
                     </p>
+                    {currentUser && currentUser.id !== profile.user_id && (
+                      <div className="mt-5 flex justify-center md:justify-start">
+                        <Button
+                          onClick={() =>
+                            navigate(`/mensajes/${encodeURIComponent(profile.username)}`)
+                          }
+                          className="font-display tracking-widest bg-gradient-neon text-background hover:opacity-90 shadow-[0_0_20px_hsl(var(--primary)/0.5)] hover:shadow-[0_0_30px_hsl(var(--primary)/0.8)] transition-all hover:scale-105"
+                        >
+                          <Mail size={14} className="mr-2" />
+                          ENVIAR MENSAJE
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </header>
