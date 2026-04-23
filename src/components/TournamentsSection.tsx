@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { CreateTournamentModal } from "./CreateTournamentModal";
 import { TournamentRegisterModal } from "./TournamentRegisterModal";
 import { useNavigate } from "react-router-dom";
+import { UsernameLink } from "@/components/UsernameLink";
 
 interface TournamentRow {
   id: string;
@@ -220,15 +221,12 @@ export const TournamentsSection = () => {
                         {t.author && (
                           <p className="font-display text-[10px] tracking-widest text-accent mt-0.5 truncate">
                             POR{" "}
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                navigate(`/perfil/${encodeURIComponent(t.author!.username)}`);
-                              }}
-                              className="hover:underline hover:text-primary transition-colors"
+                            <UsernameLink
+                              username={t.author.username}
+                              className="text-accent"
                             >
                               {t.author.username.toUpperCase()}
-                            </button>
+                            </UsernameLink>
                           </p>
                         )}
                       </div>
@@ -332,15 +330,12 @@ export const TournamentsSection = () => {
                             key={r.id}
                             className="rounded-md border border-border bg-background/40 p-3"
                           >
-                            <button
-                              onClick={() =>
-                                r.username &&
-                                navigate(`/perfil/${encodeURIComponent(r.username)}`)
-                              }
-                              className="font-display text-xs tracking-widest text-accent mb-1 hover:text-primary hover:underline transition-colors"
+                            <UsernameLink
+                              username={r.username}
+                              className="font-display text-xs tracking-widest text-accent mb-1 block"
                             >
                               {r.username?.toUpperCase()}
-                            </button>
+                            </UsernameLink>
                             <p className="text-sm text-foreground/80 whitespace-pre-wrap break-words">
                               {r.description}
                             </p>

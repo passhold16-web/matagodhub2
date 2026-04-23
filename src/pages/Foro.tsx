@@ -8,6 +8,7 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { CreateForumPostModal } from "@/components/CreateForumPostModal";
 import { ForumPostDetailModal } from "@/components/ForumPostDetailModal";
+import { UsernameLink } from "@/components/UsernameLink";
 import {
   FORUM_CATEGORIES,
   categoryLabel,
@@ -241,18 +242,14 @@ const Foro = () => {
                     </p>
 
                     <div className="flex items-center gap-4 text-xs">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (p.author?.username)
-                            navigate(`/perfil/${p.author.username}`);
-                        }}
+                      <UsernameLink
+                        username={p.author?.username}
                         className={`font-display tracking-widest ${roleColor(
                           p.author?.role
-                        )} hover:underline`}
+                        )}`}
                       >
                         {p.author?.username ?? "Trainer"}
-                      </button>
+                      </UsernameLink>
                       <span className="flex items-center gap-1 text-foreground/60">
                         <Heart size={12} /> {p.likes_count}
                       </span>
