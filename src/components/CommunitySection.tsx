@@ -1,4 +1,4 @@
-import { MessageSquare, Users, Zap, MessagesSquare } from "lucide-react";
+import { MessageSquare, MessagesSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
@@ -62,23 +62,6 @@ export const CommunitySection = () => {
           </article>
         </div>
 
-        <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
-          {[
-            { icon: MessageSquare, label: "Chat en vivo" },
-            { icon: Users, label: "Perfiles" },
-            { icon: Zap, label: "Rankings (próximamente)" },
-          ].map((f) => (
-            <div
-              key={f.label}
-              className="glass rounded-md py-4 flex flex-col items-center gap-2"
-            >
-              <f.icon className="text-primary" size={22} />
-              <span className="font-display text-xs tracking-widest text-foreground/80 text-center px-2">
-                {f.label}
-              </span>
-            </div>
-          ))}
-        </div>
       </div>
     </section>
   );
