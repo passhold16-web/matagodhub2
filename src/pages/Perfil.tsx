@@ -1,12 +1,22 @@
 import { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { BuildCard } from "@/components/BuildCard";
 import { BuildDetailModal } from "@/components/BuildDetailModal";
 import { CreateBuildModal, type EditingBuild } from "@/components/CreateBuildModal";
-import { Loader2, ArrowLeft, Crown, Youtube, ShieldCheck, User as UserIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Loader2,
+  ArrowLeft,
+  Crown,
+  Youtube,
+  ShieldCheck,
+  User as UserIcon,
+  Mail,
+} from "lucide-react";
 import type { Tier } from "@/data/mockBuilds";
 import type { TeamMember } from "@/data/pokemonMeta";
 import type { BuildRow } from "@/components/BuildsGallery";
@@ -28,6 +38,7 @@ const ROLE_BADGES: Record<string, { label: string; icon: typeof Crown; tone: str
 const Perfil = () => {
   const { username } = useParams<{ username: string }>();
   const navigate = useNavigate();
+  const { user: currentUser } = useAuth();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [builds, setBuilds] = useState<BuildRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -149,6 +160,19 @@ const Perfil = () => {
                     <p className="mt-4 font-display text-xs tracking-widest text-accent">
                       {builds.length} {builds.length === 1 ? "BUILD PUBLICADA" : "BUILDS PUBLICADAS"}
                     </p>
+                    {currentUser && currentUser.id !== profile.user_id && (
+                      <div className="mt-5 flex justify-center md:justify-start">
+                        <Button
+                          onClick={() =>
+                            navigate(`/mensajes/${encodeURIComponent(profile.username)}`)
+                          }
+                          className="font-display tracking-widest bg-gradient-neon text-background hover:opacity-90 shadow-[0_0_20px_hsl(var(--primary)/0.5)] hover:shadow-[0_0_30px_hsl(var(--primary)/0.8)] transition-all hover:scale-105"
+                        >
+                          <Mail size={14} className="mr-2" />
+                          ENVIAR MENSAJE
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </header>
