@@ -219,7 +219,16 @@ export const TournamentsSection = () => {
                         </h3>
                         {t.author && (
                           <p className="font-display text-[10px] tracking-widest text-accent mt-0.5 truncate">
-                            POR {t.author.username.toUpperCase()}
+                            POR{" "}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/perfil/${encodeURIComponent(t.author!.username)}`);
+                              }}
+                              className="hover:underline hover:text-primary transition-colors"
+                            >
+                              {t.author.username.toUpperCase()}
+                            </button>
                           </p>
                         )}
                       </div>
@@ -323,9 +332,15 @@ export const TournamentsSection = () => {
                             key={r.id}
                             className="rounded-md border border-border bg-background/40 p-3"
                           >
-                            <p className="font-display text-xs tracking-widest text-accent mb-1">
+                            <button
+                              onClick={() =>
+                                r.username &&
+                                navigate(`/perfil/${encodeURIComponent(r.username)}`)
+                              }
+                              className="font-display text-xs tracking-widest text-accent mb-1 hover:text-primary hover:underline transition-colors"
+                            >
                               {r.username?.toUpperCase()}
-                            </p>
+                            </button>
                             <p className="text-sm text-foreground/80 whitespace-pre-wrap break-words">
                               {r.description}
                             </p>
