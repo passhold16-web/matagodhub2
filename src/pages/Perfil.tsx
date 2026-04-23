@@ -52,12 +52,14 @@ const Perfil = () => {
     setLoading(true);
     setNotFound(false);
 
-    const { data: prof } = await supabase
+    // Case-insensitive lookup; pick the first match in case of legacy duplicates
+    const { data: profs } = await supabase
       .from("profiles")
       .select("user_id, username, bio, avatar_url, role")
-      .eq("username", username)
-      .maybeSingle();
+      .ilike("username", username)
+      .limit(1);
 
+    const prof = profs?.[0];
     if (!prof) {
       setNotFound(true);
       setLoading(false);

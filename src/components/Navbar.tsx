@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { id: "torneos", label: "Torneos", route: false },
   { id: "foro", label: "Foro", route: true, path: "/foro" },
   { id: "chat", label: "Chat", route: true, path: "/chat" },
+  { id: "trainers", label: "Trainers", route: true, path: "/usuarios" },
   { id: "comunidad", label: "Comunidad", route: false },
 ];
 
