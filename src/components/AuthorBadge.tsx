@@ -25,7 +25,7 @@ export const AuthorBadge = ({ username, role, className = "", noLink = false }: 
 
   const nameContent = (
     <span
-      className={`font-display tracking-wide hover:underline ${
+      className={`font-display tracking-wide ${
         isSpecial ? "text-accent neon-text-gold" : "text-accent"
       }`}
     >
@@ -42,7 +42,13 @@ export const AuthorBadge = ({ username, role, className = "", noLink = false }: 
       {noLink ? (
         nameContent
       ) : (
-        <Link to={`/perfil/${encodeURIComponent(username)}`}>{nameContent}</Link>
+        <Link
+          to={`/perfil/${encodeURIComponent(username)}`}
+          className="no-underline hover:no-underline"
+          aria-label={`Ver perfil de ${username}`}
+        >
+          {nameContent}
+        </Link>
       )}
       {meta && Icon && (
         <span

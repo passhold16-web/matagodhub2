@@ -269,19 +269,15 @@ export const ForumPostDetailModal = ({
           <DialogTitle className="font-display text-xl md:text-2xl tracking-wider text-foreground mt-2">
             {post.title}
           </DialogTitle>
-          <button
-            onClick={() => {
-              if (post.author?.username) {
-                onOpenChange(false);
-                navigate(`/perfil/${post.author.username}`);
-              }
-            }}
+          <UsernameLink
+            username={post.author?.username}
+            onBeforeNavigate={() => onOpenChange(false)}
             className={`font-display text-xs tracking-widest text-left ${roleColor(
               post.author?.role
-            )} hover:underline`}
+            )}`}
           >
             POR {post.author?.username?.toUpperCase() ?? "TRAINER"}
-          </button>
+          </UsernameLink>
         </DialogHeader>
 
         <div className="mt-2 space-y-4">
@@ -328,19 +324,15 @@ export const ForumPostDetailModal = ({
                     className="bg-card/40 border border-border rounded-md p-3 group"
                   >
                     <div className="flex items-center justify-between gap-2 mb-1">
-                      <button
-                        onClick={() => {
-                          if (c.author?.username) {
-                            onOpenChange(false);
-                            navigate(`/perfil/${c.author.username}`);
-                          }
-                        }}
+                      <UsernameLink
+                        username={c.author?.username}
+                        onBeforeNavigate={() => onOpenChange(false)}
                         className={`font-display text-[11px] tracking-widest ${roleColor(
                           c.author?.role
-                        )} hover:underline`}
+                        )}`}
                       >
                         {c.author?.username ?? "Trainer"}
-                      </button>
+                      </UsernameLink>
                       {canDelete && (
                         <button
                           onClick={() => deleteComment(c)}

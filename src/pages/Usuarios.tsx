@@ -159,7 +159,7 @@ const Usuarios = () => {
                       <div className="min-w-0 flex-1">
                         <Link
                           to={`/perfil/${encodeURIComponent(u.username)}`}
-                          className="font-display tracking-wider text-accent hover:underline truncate block"
+                          className="font-display tracking-wider text-accent no-underline hover:no-underline truncate block"
                         >
                           {u.username}
                         </Link>

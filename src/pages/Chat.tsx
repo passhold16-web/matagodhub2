@@ -223,13 +223,11 @@ const Chat = () => {
                       className={`group flex gap-2 ${own ? "justify-end" : ""}`}
                     >
                       {!own && (
-                        <button
-                          onClick={() =>
-                            m.author?.username &&
-                            navigate(`/perfil/${m.author.username}`)
-                          }
-                          className="h-8 w-8 rounded-full bg-gradient-neon shrink-0 overflow-hidden"
-                          aria-label="Ver perfil"
+                        <UsernameLink
+                          username={m.author?.username}
+                          stopPropagation={false}
+                          className="h-8 w-8 rounded-full bg-gradient-neon shrink-0 overflow-hidden block"
+                          ariaLabel="Ver perfil"
                         >
                           {m.author?.avatar_url ? (
                             <img
@@ -238,7 +236,7 @@ const Chat = () => {
                               className="h-full w-full object-cover"
                             />
                           ) : null}
-                        </button>
+                        </UsernameLink>
                       )}
                       <div
                         className={`max-w-[78%] rounded-lg px-3 py-2 ${
@@ -248,17 +246,14 @@ const Chat = () => {
                         }`}
                       >
                         <div className="flex items-center gap-1.5 mb-0.5">
-                          <button
-                            onClick={() =>
-                              m.author?.username &&
-                              navigate(`/perfil/${m.author.username}`)
-                            }
+                          <UsernameLink
+                            username={m.author?.username}
                             className={`font-display text-[11px] tracking-widest ${roleColor(
                               m.author?.role
-                            )} hover:underline`}
+                            )}`}
                           >
                             {m.author?.username ?? "Trainer"}
-                          </button>
+                          </UsernameLink>
                           {m.author?.role &&
                             m.author.role.toLowerCase() !== "user" && (
                               <ShieldCheck
