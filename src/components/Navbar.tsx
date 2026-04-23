@@ -131,6 +131,20 @@ export const Navbar = ({ active, onNavigate }: NavbarProps) => {
               <Button
                 variant="ghost"
                 size="sm"
+                onClick={() => navigate("/mensajes")}
+                className="relative font-display text-xs tracking-widest text-foreground/70 hover:text-primary hover:bg-primary/10"
+                aria-label="Mensajes"
+              >
+                <Mail size={14} />
+                {unreadDM > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-[9px] font-bold px-1.5 py-px rounded-full shadow-[0_0_8px_hsl(var(--primary))] min-w-[16px] text-center">
+                    {unreadDM > 9 ? "9+" : unreadDM}
+                  </span>
+                )}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => navigate("/perfil/editar")}
                 className="font-display text-xs tracking-widest text-foreground/70 hover:text-accent hover:bg-accent/10"
                 aria-label="Editar perfil"
@@ -198,6 +212,22 @@ export const Navbar = ({ active, onNavigate }: NavbarProps) => {
                       {displayName}
                     </span>
                   </button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setOpen(false);
+                      navigate("/mensajes");
+                    }}
+                    className="w-full font-display text-xs tracking-widest border-primary/40 text-primary justify-center relative"
+                  >
+                    <Mail size={12} className="mr-1.5" /> MENSAJES
+                    {unreadDM > 0 && (
+                      <span className="ml-2 bg-primary text-primary-foreground text-[10px] font-bold px-1.5 py-px rounded-full">
+                        {unreadDM > 9 ? "9+" : unreadDM}
+                      </span>
+                    )}
+                  </Button>
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
