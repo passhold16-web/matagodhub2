@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { CreateTournamentModal } from "./CreateTournamentModal";
 import { TournamentRegisterModal } from "./TournamentRegisterModal";
 import { useNavigate } from "react-router-dom";
+import { UsernameLink } from "@/components/UsernameLink";
 
 interface TournamentRow {
   id: string;

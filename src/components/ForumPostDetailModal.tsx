@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { categoryLabel } from "@/data/forumMeta";
 import type { ForumPostRow } from "@/pages/Foro";
 import { Heart, Loader2, Send, Trash2 } from "lucide-react";
+import { UsernameLink } from "@/components/UsernameLink";
 
 interface Comment {
   id: string;

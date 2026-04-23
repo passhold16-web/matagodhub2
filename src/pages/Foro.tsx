@@ -8,6 +8,7 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { CreateForumPostModal } from "@/components/CreateForumPostModal";
 import { ForumPostDetailModal } from "@/components/ForumPostDetailModal";
+import { UsernameLink } from "@/components/UsernameLink";
 import {
   FORUM_CATEGORIES,
   categoryLabel,
