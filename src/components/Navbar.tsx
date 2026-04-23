@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Menu, Settings, User as UserIcon, X } from "lucide-react";
+import { LogOut, Mail, Menu, Settings, User as UserIcon, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 
 const NAV_ITEMS = [
   { id: "home", label: "Inicio", route: false },
@@ -22,6 +23,35 @@ export const Navbar = ({ active, onNavigate }: NavbarProps) => {
   const [open, setOpen] = useState(false);
   const { user, profile, signOut, loading } = useAuth();
   const navigate = useNavigate();
+  const [unreadDM, setUnreadDM] = useState(0);
+
+  useEffect(() => {
+    if (!user) {
+      setUnreadDM(0);
+      return;
+    }
+    const loadUnread = async () => {
+      const { count } = await supabase
+        .from("direct_messages")
+        .select("id", { count: "exact", head: true })
+        .eq("receiver_id", user.id)
+        .is("read_at", null);
+      setUnreadDM(count ?? 0);
+    };
+    void loadUnread();
+
+    const channel = supabase
+      .channel("navbar_dm_unread")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "direct_messages" },
+        () => void loadUnread()
+      )
+      .subscribe();
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [user]);
 
   const handleClick = (item: (typeof NAV_ITEMS)[number]) => {
     setOpen(false);
