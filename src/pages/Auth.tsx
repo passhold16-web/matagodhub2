@@ -107,15 +107,32 @@ const Auth = () => {
       return;
     }
 
-    // ---------- Login ----------
-    if (!validateEmail(cleanEmail)) {
-      toast.error("Introduce un email válido.");
+    // ---------- Login (con usuario + contraseña) ----------
+    const cleanUser = username.trim();
+    if (cleanUser.length < 3) {
+      toast.error("Introduce tu nombre de usuario.");
+      return;
+    }
+    if (!password) {
+      toast.error("Introduce tu contraseña.");
       return;
     }
     setSubmitting(true);
     try {
+      // Resolvemos el email asociado al usuario mediante una función segura
+      const { data: resolvedEmail, error: rpcError } = await supabase.rpc(
+        "get_email_for_username",
+        { _username: cleanUser }
+      );
+      if (rpcError) throw rpcError;
+      if (!resolvedEmail) {
+        toast.error("Usuario o contraseña incorrectos.");
+        setSubmitting(false);
+        return;
+      }
+
       const { error } = await supabase.auth.signInWithPassword({
-        email: cleanEmail,
+        email: resolvedEmail as string,
         password,
       });
       if (error) throw error;
@@ -124,7 +141,7 @@ const Auth = () => {
     } catch (err: any) {
       const msg = (err?.message ?? "Error desconocido").toLowerCase();
       if (msg.includes("invalid login")) {
-        toast.error("Email o contraseña incorrectos.");
+        toast.error("Usuario o contraseña incorrectos.");
       } else if (msg.includes("email not confirmed")) {
         toast.error("Confirma tu email antes de iniciar sesión.");
       } else {
