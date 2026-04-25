@@ -223,6 +223,8 @@ export const BuildsGallery = () => {
             )}
           </div>
         )}
+          </>
+        )}
       </div>
 
       <CreateBuildModal
