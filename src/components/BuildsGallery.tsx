@@ -3,6 +3,7 @@ import { TIERS, type Tier } from "@/data/mockBuilds";
 import { BuildCard } from "./BuildCard";
 import { CreateBuildModal, type EditingBuild } from "./CreateBuildModal";
 import { BuildDetailModal } from "./BuildDetailModal";
+import { LoginWall } from "./LoginWall";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -30,7 +31,7 @@ export interface BuildRow {
 }
 
 export const BuildsGallery = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [filter, setFilter] = useState<Filter>("OU");
   const [builds, setBuilds] = useState<BuildRow[]>([]);
   const [loading, setLoading] = useState(true);
