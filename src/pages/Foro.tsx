@@ -77,12 +77,14 @@ const Foro = () => {
   };
 
   useEffect(() => {
+    if (!user) return;
     void load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeCat]);
+  }, [activeCat, user?.id]);
 
   // Realtime: refresh list on new/deleted posts in current view
   useEffect(() => {
+    if (!user) return;
     const channel = supabase
       .channel("forum_posts_live")
       .on(
@@ -95,7 +97,7 @@ const Foro = () => {
       void supabase.removeChannel(channel);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeCat]);
+  }, [activeCat, user?.id]);
 
   const handleCreate = () => {
     if (!user) {
@@ -160,14 +162,23 @@ const Foro = () => {
             <p className="text-foreground/70 max-w-xl mx-auto mb-5 text-sm">
               Comparte estrategias, anuncia eventos y discute con la élite.
             </p>
-            <Button
-              onClick={handleCreate}
-              className="font-display tracking-[0.3em] bg-gradient-neon text-background hover:opacity-90 shadow-[0_0_20px_hsl(var(--primary)/0.4)]"
-            >
-              <Plus size={16} className="mr-2" /> NUEVO POST
-            </Button>
+            {user && (
+              <Button
+                onClick={handleCreate}
+                className="font-display tracking-[0.3em] bg-gradient-neon text-background hover:opacity-90 shadow-[0_0_20px_hsl(var(--primary)/0.4)]"
+              >
+                <Plus size={16} className="mr-2" /> NUEVO POST
+              </Button>
+            )}
           </div>
 
+          {!authLoading && !user ? (
+            <LoginWall
+              title="FORO BLOQUEADO"
+              description="El foro es exclusivo para la comunidad. Inicia sesión o regístrate gratis para leer y publicar."
+            />
+          ) : (
+            <>
           {/* Category filter */}
           <div className="flex gap-2 flex-wrap justify-center mb-8">
             <button
