@@ -107,15 +107,32 @@ const Auth = () => {
       return;
     }
 
-    // ---------- Login ----------
-    if (!validateEmail(cleanEmail)) {
-      toast.error("Introduce un email válido.");
+    // ---------- Login (con usuario + contraseña) ----------
+    const cleanUser = username.trim();
+    if (cleanUser.length < 3) {
+      toast.error("Introduce tu nombre de usuario.");
+      return;
+    }
+    if (!password) {
+      toast.error("Introduce tu contraseña.");
       return;
     }
     setSubmitting(true);
     try {
+      // Resolvemos el email asociado al usuario mediante una función segura
+      const { data: resolvedEmail, error: rpcError } = await supabase.rpc(
+        "get_email_for_username",
+        { _username: cleanUser }
+      );
+      if (rpcError) throw rpcError;
+      if (!resolvedEmail) {
+        toast.error("Usuario o contraseña incorrectos.");
+        setSubmitting(false);
+        return;
+      }
+
       const { error } = await supabase.auth.signInWithPassword({
-        email: cleanEmail,
+        email: resolvedEmail as string,
         password,
       });
       if (error) throw error;
@@ -124,7 +141,7 @@ const Auth = () => {
     } catch (err: any) {
       const msg = (err?.message ?? "Error desconocido").toLowerCase();
       if (msg.includes("invalid login")) {
-        toast.error("Email o contraseña incorrectos.");
+        toast.error("Usuario o contraseña incorrectos.");
       } else if (msg.includes("email not confirmed")) {
         toast.error("Confirma tu email antes de iniciar sesión.");
       } else {
@@ -191,27 +208,36 @@ const Auth = () => {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="email" className="font-display text-xs tracking-widest text-foreground/80">
-                EMAIL
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                placeholder="trainer@ejemplo.com"
-                autoComplete="email"
-                className="bg-background/60 border-primary/30 focus-visible:ring-primary"
-                maxLength={120}
-              />
-            </div>
+            {/* Email: visible en signup y en forgot */}
+            {(mode === "signup" || mode === "forgot") && (
+              <div className="space-y-1.5">
+                <Label htmlFor="email" className="font-display text-xs tracking-widest text-foreground/80">
+                  EMAIL
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  placeholder="trainer@ejemplo.com"
+                  autoComplete="email"
+                  className="bg-background/60 border-primary/30 focus-visible:ring-primary"
+                  maxLength={120}
+                />
+                {mode === "signup" && (
+                  <p className="text-[10px] text-foreground/50">
+                    Solo se usa para recuperar tu contraseña si la olvidas.
+                  </p>
+                )}
+              </div>
+            )}
 
-            {mode === "signup" && (
+            {/* Usuario: visible en login y en signup */}
+            {(mode === "login" || mode === "signup") && (
               <div className="space-y-1.5">
                 <Label htmlFor="username" className="font-display text-xs tracking-widest text-foreground/80">
-                  USUARIO PÚBLICO
+                  {mode === "signup" ? "USUARIO PÚBLICO" : "USUARIO"}
                 </Label>
                 <Input
                   id="username"
@@ -223,9 +249,11 @@ const Auth = () => {
                   className="bg-background/60 border-primary/30 focus-visible:ring-primary"
                   maxLength={24}
                 />
-                <p className="text-[10px] text-foreground/50">
-                  Solo letras, números, . _ - · Mínimo 3 caracteres.
-                </p>
+                {mode === "signup" && (
+                  <p className="text-[10px] text-foreground/50">
+                    Solo letras, números, . _ - · Mínimo 3 caracteres.
+                  </p>
+                )}
               </div>
             )}
 
