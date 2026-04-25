@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { CreateForumPostModal } from "@/components/CreateForumPostModal";
 import { ForumPostDetailModal } from "@/components/ForumPostDetailModal";
 import { UsernameLink } from "@/components/UsernameLink";
+import { LoginWall } from "@/components/LoginWall";
 import {
   FORUM_CATEGORIES,
   categoryLabel,
@@ -36,7 +37,7 @@ export interface ForumPostRow {
 }
 
 const Foro = () => {
-  const { user, profile } = useAuth();
+  const { user, profile, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [posts, setPosts] = useState<ForumPostRow[]>([]);
