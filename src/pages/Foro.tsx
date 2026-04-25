@@ -274,6 +274,8 @@ const Foro = () => {
               })}
             </div>
           )}
+            </>
+          )}
         </div>
       </main>
 
