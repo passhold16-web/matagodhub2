@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -31,30 +32,55 @@ export const TournamentRegisterModal = ({
 }: Props) => {
   const { user, profile } = useAuth();
   const { toast } = useToast();
+  const [pokemmoNick, setPokemmoNick] = useState("");
   const [description, setDescription] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!open) setDescription("");
+    if (!open) {
+      setPokemmoNick("");
+      setDescription("");
+    }
   }, [open]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !tournamentId) return;
-    if (description.trim().length < 5) {
-      toast({ title: "Descripción muy corta", description: "Mínimo 5 caracteres." });
+
+    const nick = pokemmoNick.trim();
+    if (nick.length < 2 || nick.length > 32) {
+      toast({
+        title: "Nick PokeMMO inválido",
+        description: "Debe tener entre 2 y 32 caracteres.",
+        variant: "destructive",
+      });
       return;
     }
+    if (description.trim().length < 5) {
+      toast({
+        title: "Descripción muy corta",
+        description: "Mínimo 5 caracteres.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setSubmitting(true);
     const { error } = await supabase.from("tournament_registrations").insert({
       tournament_id: tournamentId,
       user_id: user.id,
+      pokemmo_nick: nick,
       description: description.trim(),
     });
     setSubmitting(false);
+
     if (error) {
       if (error.code === "23505") {
-        toast({ title: "Ya estás inscrito", description: "Solo puedes inscribirte una vez.", variant: "destructive" });
+        toast({
+          title: "Ya estás inscrito",
+          description: "Solo puedes inscribirte una vez.",
+          variant: "destructive",
+        });
       } else {
         toast({ title: "Error", description: error.message, variant: "destructive" });
       }
@@ -80,7 +106,7 @@ export const TournamentRegisterModal = ({
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
             <Label className="font-display text-xs tracking-widest text-foreground/80">
-              USUARIO
+              USUARIO MATAGOD
             </Label>
             <div className="px-3 py-2 rounded-md bg-muted/40 border border-border font-display text-sm text-accent tracking-wider">
               {profile?.username ?? "..."}
@@ -88,8 +114,26 @@ export const TournamentRegisterModal = ({
           </div>
 
           <div className="space-y-1.5">
+            <Label htmlFor="pokemmo" className="font-display text-xs tracking-widest text-foreground/80">
+              NICK POKEMMO <span className="text-primary">*</span>
+            </Label>
+            <Input
+              id="pokemmo"
+              value={pokemmoNick}
+              onChange={(e) => setPokemmoNick(e.target.value)}
+              placeholder="Tu nombre en el juego"
+              maxLength={32}
+              required
+              className="bg-background/60 border-primary/30 focus-visible:ring-primary"
+            />
+            <p className="text-[10px] text-muted-foreground">
+              Imprescindible para identificarte en el torneo.
+            </p>
+          </div>
+
+          <div className="space-y-1.5">
             <Label htmlFor="desc" className="font-display text-xs tracking-widest text-foreground/80">
-              TU POST
+              DESCRIPCIÓN <span className="text-primary">*</span>
             </Label>
             <Textarea
               id="desc"
@@ -98,6 +142,7 @@ export const TournamentRegisterModal = ({
               placeholder="Cuéntanos lo Pro que eres"
               maxLength={500}
               rows={5}
+              required
               className="bg-background/60 border-primary/30 focus-visible:ring-primary resize-none"
             />
             <p className="text-[10px] text-muted-foreground text-right">{description.length}/500</p>

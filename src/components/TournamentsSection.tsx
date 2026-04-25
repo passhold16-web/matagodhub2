@@ -29,6 +29,7 @@ interface Registration {
   tournament_id: string;
   user_id: string;
   description: string;
+  pokemmo_nick: string;
   created_at: string;
   username?: string;
 }
@@ -330,12 +331,17 @@ export const TournamentsSection = () => {
                             key={r.id}
                             className="rounded-md border border-border bg-background/40 p-3"
                           >
-                            <UsernameLink
-                              username={r.username}
-                              className="font-display text-xs tracking-widest text-accent mb-1 block"
-                            >
-                              {r.username?.toUpperCase()}
-                            </UsernameLink>
+                            <div className="flex items-center justify-between gap-2 mb-1 flex-wrap">
+                              <UsernameLink
+                                username={r.username}
+                                className="font-display text-xs tracking-widest text-accent block"
+                              >
+                                {r.username?.toUpperCase()}
+                              </UsernameLink>
+                              <span className="font-display text-[10px] tracking-widest text-primary/90 px-2 py-0.5 rounded border border-primary/30 bg-primary/5">
+                                PokeMMO: {r.pokemmo_nick}
+                              </span>
+                            </div>
                             <p className="text-sm text-foreground/80 whitespace-pre-wrap break-words">
                               {r.description}
                             </p>

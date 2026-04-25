@@ -3,6 +3,7 @@ import { TIERS, type Tier } from "@/data/mockBuilds";
 import { BuildCard } from "./BuildCard";
 import { CreateBuildModal, type EditingBuild } from "./CreateBuildModal";
 import { BuildDetailModal } from "./BuildDetailModal";
+import { LoginWall } from "./LoginWall";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -30,7 +31,7 @@ export interface BuildRow {
 }
 
 export const BuildsGallery = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [filter, setFilter] = useState<Filter>("OU");
   const [builds, setBuilds] = useState<BuildRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -133,6 +134,13 @@ export const BuildsGallery = () => {
           </p>
         </div>
 
+        {!authLoading && !user ? (
+          <LoginWall
+            title="BUILDS BLOQUEADAS"
+            description="Las builds de la élite son contenido exclusivo para la comunidad. Inicia sesión o regístrate gratis para verlas."
+          />
+        ) : (
+          <>
         <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3 mb-10">
           {filters.map((f) => {
             const active = filter === f;
@@ -214,6 +222,8 @@ export const BuildsGallery = () => {
               </p>
             )}
           </div>
+        )}
+          </>
         )}
       </div>
 
