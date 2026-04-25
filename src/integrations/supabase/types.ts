@@ -234,6 +234,7 @@ export type Database = {
           created_at: string
           description: string
           id: string
+          pokemmo_nick: string
           tournament_id: string
           user_id: string
         }
@@ -241,6 +242,7 @@ export type Database = {
           created_at?: string
           description: string
           id?: string
+          pokemmo_nick: string
           tournament_id: string
           user_id: string
         }
@@ -248,6 +250,7 @@ export type Database = {
           created_at?: string
           description?: string
           id?: string
+          pokemmo_nick?: string
           tournament_id?: string
           user_id?: string
         }
