@@ -134,6 +134,13 @@ export const BuildsGallery = () => {
           </p>
         </div>
 
+        {!authLoading && !user ? (
+          <LoginWall
+            title="BUILDS BLOQUEADAS"
+            description="Las builds de la élite son contenido exclusivo para la comunidad. Inicia sesión o regístrate gratis para verlas."
+          />
+        ) : (
+          <>
         <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3 mb-10">
           {filters.map((f) => {
             const active = filter === f;
