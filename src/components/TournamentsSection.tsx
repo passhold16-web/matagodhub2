@@ -202,7 +202,7 @@ export const TournamentsSection = () => {
             {tournaments.map((t, i) => {
               const isOwner = user?.id === t.user_id;
               const tRegs = registrations.filter((r) => r.tournament_id === t.id);
-              const isOpen = !!expanded[t.id];
+              
               return (
                 <article
                   key={t.id}
