@@ -26,17 +26,31 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { X, Search, Loader2, Plus } from "lucide-react";
+import { POKEMON_FORMS } from "@/data/pokemonForms";
 
-let pokemonListCache: { id: number; name: string }[] | null = null;
+interface PokeListEntry {
+  id: number;
+  name: string;
+  display?: string;
+  baseId?: number; // for variant matching
+}
 
-async function fetchPokemonList() {
+let pokemonListCache: PokeListEntry[] | null = null;
+
+async function fetchPokemonList(): Promise<PokeListEntry[]> {
   if (pokemonListCache) return pokemonListCache;
   const res = await fetch("https://pokeapi.co/api/v2/pokemon?limit=649&offset=0");
   const data = await res.json();
-  pokemonListCache = (data.results as { name: string; url: string }[]).map((p, i) => ({
-    id: i + 1,
-    name: p.name,
+  const base: PokeListEntry[] = (data.results as { name: string; url: string }[]).map(
+    (p, i) => ({ id: i + 1, name: p.name })
+  );
+  const forms: PokeListEntry[] = POKEMON_FORMS.map((f) => ({
+    id: f.id,
+    name: f.name,
+    display: f.display,
+    baseId: f.baseId,
   }));
+  pokemonListCache = [...base, ...forms];
   return pokemonListCache;
 }
 
@@ -71,7 +85,7 @@ export const CreateBuildModal = ({
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [activePanel, setActivePanel] = useState<string | undefined>();
   const [search, setSearch] = useState("");
-  const [allPokemon, setAllPokemon] = useState<{ id: number; name: string }[]>([]);
+  const [allPokemon, setAllPokemon] = useState<PokeListEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
@@ -102,7 +116,13 @@ export const CreateBuildModal = ({
   const filtered =
     search.length >= 2
       ? allPokemon
-          .filter((p) => p.name.includes(search.toLowerCase()))
+          .filter((p) => {
+            const q = search.toLowerCase();
+            return (
+              p.name.includes(q) ||
+              (p.display ?? "").toLowerCase().includes(q)
+            );
+          })
           .filter((p) => !team.some((m) => m.pokemonId === p.id))
           .slice(0, 30)
       : [];
@@ -300,14 +320,16 @@ export const CreateBuildModal = ({
                       <button
                         key={p.id}
                         type="button"
-                        onClick={() => addPokemon(p.id, p.name)}
+                        onClick={() => addPokemon(p.id, p.display ?? p.name)}
                         className="w-full flex items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-primary/10 transition-colors"
                       >
                         <PokemonSprite id={p.id} size={28} />
                         <span className="capitalize font-display tracking-wide text-foreground/90">
-                          {p.name}
+                          {p.display ?? p.name}
                         </span>
-                        <span className="ml-auto text-xs text-foreground/40">#{p.id}</span>
+                        <span className="ml-auto text-xs text-foreground/40">
+                          {p.id >= 10000 ? "FORMA" : `#${p.id}`}
+                        </span>
                       </button>
                     ))}
                   </div>

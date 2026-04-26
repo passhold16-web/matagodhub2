@@ -10,11 +10,19 @@ interface PokemonSpriteProps {
   priority?: boolean;
 }
 
+// Alternate forms (id >= 10000) don't have animated Gen-5 sprites at the same path,
+// so we serve their static official sprite directly.
+const isFormId = (id: number) => id >= 10000;
+const formSpriteUrl = (id: number) =>
+  `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
+
 export const PokemonSprite = ({ id, size = 64, className, priority = false }: PokemonSpriteProps) => {
   const [errored, setErrored] = useState(false);
+  const primary = isFormId(id) ? formSpriteUrl(id) : spriteUrl(id);
+  const fallback = isFormId(id) ? formSpriteUrl(id) : spriteFallback(id);
   return (
     <img
-      src={errored ? spriteFallback(id) : spriteUrl(id)}
+      src={errored ? fallback : primary}
       alt={`Pokémon #${id}`}
       width={size}
       height={size}

@@ -44,6 +44,7 @@ export const BuildsGallery = () => {
     const { data: buildsData } = await supabase
       .from("builds")
       .select("*")
+      .order("votes_count", { ascending: false })
       .order("created_at", { ascending: false });
 
     if (!buildsData) {
@@ -76,13 +77,20 @@ export const BuildsGallery = () => {
     fetchBuilds();
   }, [fetchBuilds]);
 
-  // Realtime: keep builds list in sync (insert/update/delete)
+  // Realtime: keep builds list in sync (insert/update/delete + vote changes)
   useEffect(() => {
     const channel = supabase
       .channel("builds-list")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "builds" },
+        () => {
+          void fetchBuilds();
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "votes" },
         () => {
           void fetchBuilds();
         }

@@ -57,7 +57,7 @@ export const TournamentsSection = () => {
   const [loading, setLoading] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
   const [registerFor, setRegisterFor] = useState<TournamentRow | null>(null);
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  
 
   const loadRegistrations = async () => {
     const { data } = await supabase
@@ -202,7 +202,7 @@ export const TournamentsSection = () => {
             {tournaments.map((t, i) => {
               const isOwner = user?.id === t.user_id;
               const tRegs = registrations.filter((r) => r.tournament_id === t.id);
-              const isOpen = !!expanded[t.id];
+              
               return (
                 <article
                   key={t.id}
@@ -310,28 +310,26 @@ export const TournamentsSection = () => {
                     )}
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => setExpanded((s) => ({ ...s, [t.id]: !isOpen }))}
-                    className="w-full text-left font-display text-[11px] tracking-widest text-foreground/60 hover:text-accent transition-colors flex items-center gap-2"
-                  >
-                    <MessageCircle size={12} />
-                    {isOpen ? "OCULTAR" : "VER"} INSCRIPCIONES ({tRegs.length})
-                  </button>
+                  <div className="mt-2 pt-3 border-t border-primary/10">
+                    <div className="flex items-center gap-2 mb-3">
+                      <MessageCircle size={12} className="text-accent" />
+                      <h4 className="font-display text-[11px] tracking-widest text-accent">
+                        LISTA DE PARTICIPANTES ({tRegs.length})
+                      </h4>
+                    </div>
 
-                  {isOpen && (
-                    <div className="mt-3 space-y-2 max-h-60 overflow-y-auto pr-1">
-                      {tRegs.length === 0 ? (
-                        <p className="text-xs text-muted-foreground font-display tracking-wider">
-                          Nadie se ha inscrito todavía.
-                        </p>
-                      ) : (
-                        tRegs.map((r) => (
+                    {tRegs.length === 0 ? (
+                      <p className="text-xs text-muted-foreground font-display tracking-wider">
+                        Nadie se ha inscrito todavía. ¡Sé el primero!
+                      </p>
+                    ) : (
+                      <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+                        {tRegs.map((r) => (
                           <div
                             key={r.id}
-                            className="rounded-md border border-border bg-background/40 p-3"
+                            className="rounded-md border border-border bg-background/40 p-3 hover:border-primary/40 transition-colors"
                           >
-                            <div className="flex items-center justify-between gap-2 mb-1 flex-wrap">
+                            <div className="flex items-center justify-between gap-2 mb-1.5 flex-wrap">
                               <UsernameLink
                                 username={r.username}
                                 className="font-display text-xs tracking-widest text-accent block"
@@ -346,10 +344,10 @@ export const TournamentsSection = () => {
                               {r.description}
                             </p>
                           </div>
-                        ))
-                      )}
-                    </div>
-                  )}
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </article>
               );
             })}
