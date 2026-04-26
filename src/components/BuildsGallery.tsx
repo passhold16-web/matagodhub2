@@ -44,6 +44,7 @@ export const BuildsGallery = () => {
     const { data: buildsData } = await supabase
       .from("builds")
       .select("*")
+      .order("votes_count", { ascending: false })
       .order("created_at", { ascending: false });
 
     if (!buildsData) {
