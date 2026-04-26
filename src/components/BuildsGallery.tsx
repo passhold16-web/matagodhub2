@@ -161,7 +161,10 @@ export const BuildsGallery = () => {
             return (
               <button
                 key={f}
-                onClick={() => setFilter(f)}
+                onClick={() => {
+                  setFilter(f);
+                  setShowAll(false);
+                }}
                 className={`px-5 py-2 rounded-md font-display text-sm tracking-[0.2em] border transition-all ${
                   active
                     ? "bg-primary text-primary-foreground border-primary shadow-[0_0_20px_hsl(var(--primary)/0.6)]"
