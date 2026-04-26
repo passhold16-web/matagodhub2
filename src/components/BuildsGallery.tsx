@@ -38,6 +38,7 @@ export const BuildsGallery = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<EditingBuild | null>(null);
   const [detailBuild, setDetailBuild] = useState<BuildRow | null>(null);
+  const [showAll, setShowAll] = useState(false);
 
   const fetchBuilds = useCallback(async () => {
     setLoading(true);
