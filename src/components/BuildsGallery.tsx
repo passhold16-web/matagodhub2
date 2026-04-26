@@ -38,6 +38,7 @@ export const BuildsGallery = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<EditingBuild | null>(null);
   const [detailBuild, setDetailBuild] = useState<BuildRow | null>(null);
+  const [showAll, setShowAll] = useState(false);
 
   const fetchBuilds = useCallback(async () => {
     setLoading(true);
@@ -107,6 +108,11 @@ export const BuildsGallery = () => {
     [filter, builds]
   );
 
+  const visible = useMemo(
+    () => (showAll ? filtered : filtered.slice(0, 3)),
+    [filtered, showAll]
+  );
+
   const filters: Filter[] = [...TIERS];
 
   const handleEdit = (b: BuildRow) => {
@@ -155,7 +161,10 @@ export const BuildsGallery = () => {
             return (
               <button
                 key={f}
-                onClick={() => setFilter(f)}
+                onClick={() => {
+                  setFilter(f);
+                  setShowAll(false);
+                }}
                 className={`px-5 py-2 rounded-md font-display text-sm tracking-[0.2em] border transition-all ${
                   active
                     ? "bg-primary text-primary-foreground border-primary shadow-[0_0_20px_hsl(var(--primary)/0.6)]"
@@ -183,34 +192,50 @@ export const BuildsGallery = () => {
             <Loader2 size={32} className="animate-spin text-primary" />
           </div>
         ) : filtered.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filtered.map((b, i) => (
-              <div
-                key={b.id}
-                className="animate-fade-in-up"
-                style={{ animationDelay: `${i * 60}ms` }}
-              >
-                <BuildCard
-                  build={{
-                    id: b.id,
-                    name: b.name,
-                    author: b.author?.username ?? "Trainer",
-                    tier: b.tier as Tier,
-                    description: b.description ?? "",
-                    pokemonIds: b.pokemon_ids,
-                    votes: b.votes_count,
-                    views: 0,
-                  }}
-                  buildId={b.id}
-                  ownerId={b.user_id}
-                  authorRole={b.author?.role ?? null}
-                  onOpen={() => setDetailBuild(b)}
-                  onEdit={() => handleEdit(b)}
-                  onDeleted={fetchBuilds}
-                />
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {visible.map((b, i) => (
+                <div
+                  key={b.id}
+                  className="animate-fade-in-up"
+                  style={{ animationDelay: `${i * 60}ms` }}
+                >
+                  <BuildCard
+                    build={{
+                      id: b.id,
+                      name: b.name,
+                      author: b.author?.username ?? "Trainer",
+                      tier: b.tier as Tier,
+                      description: b.description ?? "",
+                      pokemonIds: b.pokemon_ids,
+                      votes: b.votes_count,
+                      views: 0,
+                    }}
+                    buildId={b.id}
+                    ownerId={b.user_id}
+                    authorRole={b.author?.role ?? null}
+                    onOpen={() => setDetailBuild(b)}
+                    onEdit={() => handleEdit(b)}
+                    onDeleted={fetchBuilds}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {filtered.length > 3 && (
+              <div className="flex justify-center mt-10">
+                <Button
+                  onClick={() => setShowAll((v) => !v)}
+                  variant="outline"
+                  className="font-display tracking-[0.3em] border-primary/60 text-foreground hover:bg-primary/10 hover:text-foreground"
+                >
+                  {showAll
+                    ? "VER MENOS"
+                    : `VER MÁS (${filtered.length - 3})`}
+                </Button>
               </div>
-            ))}
-          </div>
+            )}
+          </>
         ) : (
           <div className="text-center py-20 space-y-4">
             <p className="text-muted-foreground font-display tracking-wider text-lg">
