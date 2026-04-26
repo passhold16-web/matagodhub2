@@ -343,6 +343,17 @@ export const TournamentsSection = () => {
         tournamentId={registerFor?.id ?? null}
         tournamentName={registerFor?.name}
       />
+
+      <TournamentParticipantsModal
+        open={!!participantsFor}
+        onOpenChange={(o) => !o && setParticipantsFor(null)}
+        tournamentName={participantsFor?.name}
+        participants={
+          participantsFor
+            ? registrations.filter((r) => r.tournament_id === participantsFor.id)
+            : []
+        }
+      />
     </section>
   );
 };
