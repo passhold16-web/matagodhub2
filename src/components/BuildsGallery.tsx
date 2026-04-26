@@ -108,6 +108,11 @@ export const BuildsGallery = () => {
     [filter, builds]
   );
 
+  const visible = useMemo(
+    () => (showAll ? filtered : filtered.slice(0, 3)),
+    [filtered, showAll]
+  );
+
   const filters: Filter[] = [...TIERS];
 
   const handleEdit = (b: BuildRow) => {
