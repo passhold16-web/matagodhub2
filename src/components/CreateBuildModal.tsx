@@ -320,14 +320,16 @@ export const CreateBuildModal = ({
                       <button
                         key={p.id}
                         type="button"
-                        onClick={() => addPokemon(p.id, p.name)}
+                        onClick={() => addPokemon(p.id, p.display ?? p.name)}
                         className="w-full flex items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-primary/10 transition-colors"
                       >
                         <PokemonSprite id={p.id} size={28} />
                         <span className="capitalize font-display tracking-wide text-foreground/90">
-                          {p.name}
+                          {p.display ?? p.name}
                         </span>
-                        <span className="ml-auto text-xs text-foreground/40">#{p.id}</span>
+                        <span className="ml-auto text-xs text-foreground/40">
+                          {p.id >= 10000 ? "FORMA" : `#${p.id}`}
+                        </span>
                       </button>
                     ))}
                   </div>
