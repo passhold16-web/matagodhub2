@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import type { ReactNode, MouseEvent } from "react";
+import type { ReactNode, MouseEvent, TouchEvent } from "react";
 
 interface UsernameLinkProps {
   username?: string | null;
@@ -18,6 +18,9 @@ interface UsernameLinkProps {
  *
  * Visually neutral: inherits color, no underline, just a pointer cursor.
  * Falls back to a plain <span> if the username is missing.
+ *
+ * Stops mouse / touch / pointer events on multiple phases so a parent
+ * card with onClick (e.g. forum post tile) cannot steal the click.
  */
 export const UsernameLink = ({
   username,
@@ -33,6 +36,10 @@ export const UsernameLink = ({
     return <span className={className}>{label}</span>;
   }
 
+  const stopAll = (e: MouseEvent | TouchEvent) => {
+    if (stopPropagation) e.stopPropagation();
+  };
+
   const handleClick = (e: MouseEvent<HTMLAnchorElement>) => {
     if (stopPropagation) e.stopPropagation();
     onBeforeNavigate?.();
@@ -42,8 +49,10 @@ export const UsernameLink = ({
     <Link
       to={`/perfil/${encodeURIComponent(username)}`}
       onClick={handleClick}
+      onMouseDown={stopAll}
+      onTouchStart={stopAll}
       aria-label={ariaLabel ?? `Ver perfil de ${username}`}
-      className={`cursor-pointer no-underline hover:no-underline ${className}`}
+      className={`relative z-10 cursor-pointer no-underline hover:no-underline ${className}`}
     >
       {label}
     </Link>
