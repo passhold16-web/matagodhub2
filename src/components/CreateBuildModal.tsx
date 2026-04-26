@@ -85,7 +85,7 @@ export const CreateBuildModal = ({
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [activePanel, setActivePanel] = useState<string | undefined>();
   const [search, setSearch] = useState("");
-  const [allPokemon, setAllPokemon] = useState<{ id: number; name: string }[]>([]);
+  const [allPokemon, setAllPokemon] = useState<PokeListEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
@@ -116,7 +116,13 @@ export const CreateBuildModal = ({
   const filtered =
     search.length >= 2
       ? allPokemon
-          .filter((p) => p.name.includes(search.toLowerCase()))
+          .filter((p) => {
+            const q = search.toLowerCase();
+            return (
+              p.name.includes(q) ||
+              (p.display ?? "").toLowerCase().includes(q)
+            );
+          })
           .filter((p) => !team.some((m) => m.pokemonId === p.id))
           .slice(0, 30)
       : [];
