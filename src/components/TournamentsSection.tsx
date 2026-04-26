@@ -57,7 +57,7 @@ export const TournamentsSection = () => {
   const [loading, setLoading] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
   const [registerFor, setRegisterFor] = useState<TournamentRow | null>(null);
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  
 
   const loadRegistrations = async () => {
     const { data } = await supabase
