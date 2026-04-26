@@ -26,17 +26,31 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { X, Search, Loader2, Plus } from "lucide-react";
+import { POKEMON_FORMS } from "@/data/pokemonForms";
 
-let pokemonListCache: { id: number; name: string }[] | null = null;
+interface PokeListEntry {
+  id: number;
+  name: string;
+  display?: string;
+  baseId?: number; // for variant matching
+}
 
-async function fetchPokemonList() {
+let pokemonListCache: PokeListEntry[] | null = null;
+
+async function fetchPokemonList(): Promise<PokeListEntry[]> {
   if (pokemonListCache) return pokemonListCache;
   const res = await fetch("https://pokeapi.co/api/v2/pokemon?limit=649&offset=0");
   const data = await res.json();
-  pokemonListCache = (data.results as { name: string; url: string }[]).map((p, i) => ({
-    id: i + 1,
-    name: p.name,
+  const base: PokeListEntry[] = (data.results as { name: string; url: string }[]).map(
+    (p, i) => ({ id: i + 1, name: p.name })
+  );
+  const forms: PokeListEntry[] = POKEMON_FORMS.map((f) => ({
+    id: f.id,
+    name: f.name,
+    display: f.display,
+    baseId: f.baseId,
   }));
+  pokemonListCache = [...base, ...forms];
   return pokemonListCache;
 }
 
