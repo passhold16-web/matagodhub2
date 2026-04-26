@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { CreateTournamentModal } from "./CreateTournamentModal";
 import { TournamentRegisterModal } from "./TournamentRegisterModal";
+import { TournamentParticipantsModal } from "./TournamentParticipantsModal";
 import { useNavigate } from "react-router-dom";
 import { UsernameLink } from "@/components/UsernameLink";
 
