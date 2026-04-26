@@ -311,44 +311,19 @@ export const TournamentsSection = () => {
                     )}
                   </div>
 
-                  <div className="mt-2 pt-3 border-t border-primary/10">
-                    <div className="flex items-center gap-2 mb-3">
+                  <button
+                    type="button"
+                    onClick={() => setParticipantsFor(t)}
+                    className="w-full mt-2 pt-3 border-t border-primary/10 flex items-center justify-between gap-2 font-display text-[11px] tracking-widest text-foreground/70 hover:text-accent transition-colors group/parts"
+                  >
+                    <span className="flex items-center gap-2">
                       <MessageCircle size={12} className="text-accent" />
-                      <h4 className="font-display text-[11px] tracking-widest text-accent">
-                        LISTA DE PARTICIPANTES ({tRegs.length})
-                      </h4>
-                    </div>
-
-                    {tRegs.length === 0 ? (
-                      <p className="text-xs text-muted-foreground font-display tracking-wider">
-                        Nadie se ha inscrito todavía. ¡Sé el primero!
-                      </p>
-                    ) : (
-                      <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
-                        {tRegs.map((r) => (
-                          <div
-                            key={r.id}
-                            className="rounded-md border border-border bg-background/40 p-3 hover:border-primary/40 transition-colors"
-                          >
-                            <div className="flex items-center justify-between gap-2 mb-1.5 flex-wrap">
-                              <UsernameLink
-                                username={r.username}
-                                className="font-display text-xs tracking-widest text-accent block"
-                              >
-                                {r.username?.toUpperCase()}
-                              </UsernameLink>
-                              <span className="font-display text-[10px] tracking-widest text-primary/90 px-2 py-0.5 rounded border border-primary/30 bg-primary/5">
-                                PokeMMO: {r.pokemmo_nick}
-                              </span>
-                            </div>
-                            <p className="text-sm text-foreground/80 whitespace-pre-wrap break-words">
-                              {r.description}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                      VER PARTICIPANTES ({tRegs.length})
+                    </span>
+                    <span className="text-accent opacity-60 group-hover/parts:opacity-100 transition-opacity">
+                      →
+                    </span>
+                  </button>
                 </article>
               );
             })}
