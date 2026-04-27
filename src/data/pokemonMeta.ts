@@ -118,6 +118,7 @@ export const ITEM_ES: Record<string, string> = {
   "Scope Lens": "Periscopio",
   "Muscle Band": "Cinta Músculo",
   "Wise Glasses": "Gafas Especiales",
+  "Loaded Dice": "Dados Trucados",
 };
 
 export const itemLabel = (i: string) => (i ? ITEM_ES[i] ?? i : "");
