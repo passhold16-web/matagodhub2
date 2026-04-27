@@ -7,7 +7,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Send, Trash2, ArrowLeft, ShieldCheck } from "lucide-react";
+import { Loader2, Send, Trash2, ArrowLeft, ShieldCheck, Eraser } from "lucide-react";
 import { UsernameLink } from "@/components/UsernameLink";
 
 interface ChatMessage {
@@ -20,6 +20,9 @@ interface ChatMessage {
 
 const MAX_LEN = 300;
 const COOLDOWN_MS = 2000;
+const CHAT_WINDOW_HOURS = 24;
+const windowStartIso = () =>
+  new Date(Date.now() - CHAT_WINDOW_HOURS * 60 * 60 * 1000).toISOString();
 
 const Chat = () => {
   const { user, profile, loading: authLoading } = useAuth();
@@ -33,9 +36,9 @@ const Chat = () => {
   const lastSentRef = useRef(0);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  const isAdmin = profile?.role?.toLowerCase() === "admin";
   const isStaff =
-    profile?.role?.toLowerCase() === "admin" ||
-    profile?.role?.toLowerCase() === "mod";
+    isAdmin || profile?.role?.toLowerCase() === "mod";
 
   const enrichAuthors = async (rows: ChatMessage[]): Promise<ChatMessage[]> => {
     if (rows.length === 0) return rows;
@@ -60,6 +63,7 @@ const Chat = () => {
       const { data } = await supabase
         .from("chat_messages")
         .select("*")
+        .gte("created_at", windowStartIso())
         .order("created_at", { ascending: true })
         .limit(200);
       const enriched = await enrichAuthors((data ?? []) as ChatMessage[]);
@@ -68,8 +72,16 @@ const Chat = () => {
         setLoading(false);
       }
     })();
+    // Periodically drop messages older than the 24h window from local state
+    const prune = setInterval(() => {
+      const cutoff = Date.now() - CHAT_WINDOW_HOURS * 60 * 60 * 1000;
+      setMessages((prev) =>
+        prev.filter((m) => new Date(m.created_at).getTime() >= cutoff)
+      );
+    }, 60_000);
     return () => {
       active = false;
+      clearInterval(prune);
     };
   }, []);
 
@@ -159,6 +171,23 @@ const Chat = () => {
     }
   };
 
+  const handleClearAll = async () => {
+    if (!isAdmin) return;
+    if (!confirm("¿Borrar TODOS los mensajes del chat? Esta acción no se puede deshacer."))
+      return;
+    // Use a permissive filter so RLS-eligible rows are deleted.
+    const { error } = await supabase
+      .from("chat_messages")
+      .delete()
+      .gte("created_at", "1970-01-01");
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+      return;
+    }
+    setMessages([]);
+    toast({ title: "Chat limpiado", description: "Todos los mensajes han sido borrados." });
+  };
+
   const formatTime = (iso: string) => {
     try {
       return new Date(iso).toLocaleTimeString("es-ES", {
@@ -192,13 +221,24 @@ const Chat = () => {
             <ArrowLeft size={14} /> VOLVER
           </button>
 
-          <div className="text-center mb-4">
+          <div className="text-center mb-4 relative">
             <p className="font-display text-xs tracking-[0.4em] text-accent mb-1">
-              ◆ EN VIVO ◆
+              ◆ EN VIVO · ÚLTIMAS 24H ◆
             </p>
             <h1 className="font-display text-3xl md:text-4xl tracking-wider neon-text-red">
               CHAT GLOBAL
             </h1>
+            {isAdmin && (
+              <Button
+                onClick={handleClearAll}
+                size="sm"
+                variant="outline"
+                className="mt-3 font-display tracking-widest text-xs border-destructive/60 text-destructive hover:bg-destructive/10 hover:text-destructive"
+              >
+                <Eraser size={12} className="mr-2" />
+                LIMPIAR CHAT
+              </Button>
+            )}
           </div>
 
           <div className="neon-border bg-card/80 backdrop-blur-xl rounded-lg flex-1 flex flex-col overflow-hidden min-h-[60vh]">

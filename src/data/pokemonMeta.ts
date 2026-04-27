@@ -60,6 +60,7 @@ export const ITEMS = [
   "BlackGlasses", "Metal Coat", "Pixie Plate",
   "Shell Bell", "Quick Claw", "King's Rock", "Razor Claw",
   "Scope Lens", "Muscle Band", "Wise Glasses",
+  "Loaded Dice",
 ] as const;
 
 // English -> Spanish items (PokeMMO oficial / Bulbapedia ES).
@@ -117,6 +118,7 @@ export const ITEM_ES: Record<string, string> = {
   "Scope Lens": "Periscopio",
   "Muscle Band": "Cinta Músculo",
   "Wise Glasses": "Gafas Especiales",
+  "Loaded Dice": "Dados Trucados",
 };
 
 export const itemLabel = (i: string) => (i ? ITEM_ES[i] ?? i : "");
