@@ -20,6 +20,9 @@ interface ChatMessage {
 
 const MAX_LEN = 300;
 const COOLDOWN_MS = 2000;
+const CHAT_WINDOW_HOURS = 24;
+const windowStartIso = () =>
+  new Date(Date.now() - CHAT_WINDOW_HOURS * 60 * 60 * 1000).toISOString();
 
 const Chat = () => {
   const { user, profile, loading: authLoading } = useAuth();
