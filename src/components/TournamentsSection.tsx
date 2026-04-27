@@ -280,7 +280,13 @@ export const TournamentsSection = () => {
 
                   <div className="flex gap-2 mb-3">
                     <Button
-                      onClick={() => handleRegister(t)}
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleRegister(t);
+                      }}
+                      style={{ touchAction: "manipulation" }}
                       className="flex-1 font-display tracking-widest bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_15px_hsl(var(--primary)/0.5)] hover:shadow-[0_0_30px_hsl(var(--primary)/0.9)] transition-all"
                     >
                       <UserPlus size={14} className="mr-2" />
