@@ -221,13 +221,24 @@ const Chat = () => {
             <ArrowLeft size={14} /> VOLVER
           </button>
 
-          <div className="text-center mb-4">
+          <div className="text-center mb-4 relative">
             <p className="font-display text-xs tracking-[0.4em] text-accent mb-1">
-              ◆ EN VIVO ◆
+              ◆ EN VIVO · ÚLTIMAS 24H ◆
             </p>
             <h1 className="font-display text-3xl md:text-4xl tracking-wider neon-text-red">
               CHAT GLOBAL
             </h1>
+            {isAdmin && (
+              <Button
+                onClick={handleClearAll}
+                size="sm"
+                variant="outline"
+                className="mt-3 font-display tracking-widest text-xs border-destructive/60 text-destructive hover:bg-destructive/10 hover:text-destructive"
+              >
+                <Eraser size={12} className="mr-2" />
+                LIMPIAR CHAT
+              </Button>
+            )}
           </div>
 
           <div className="neon-border bg-card/80 backdrop-blur-xl rounded-lg flex-1 flex flex-col overflow-hidden min-h-[60vh]">
