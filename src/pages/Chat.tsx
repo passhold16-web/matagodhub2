@@ -7,7 +7,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Send, Trash2, ArrowLeft, ShieldCheck } from "lucide-react";
+import { Loader2, Send, Trash2, ArrowLeft, ShieldCheck, Eraser } from "lucide-react";
 import { UsernameLink } from "@/components/UsernameLink";
 
 interface ChatMessage {
