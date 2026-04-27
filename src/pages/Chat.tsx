@@ -36,9 +36,9 @@ const Chat = () => {
   const lastSentRef = useRef(0);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  const isAdmin = profile?.role?.toLowerCase() === "admin";
   const isStaff =
-    profile?.role?.toLowerCase() === "admin" ||
-    profile?.role?.toLowerCase() === "mod";
+    isAdmin || profile?.role?.toLowerCase() === "mod";
 
   const enrichAuthors = async (rows: ChatMessage[]): Promise<ChatMessage[]> => {
     if (rows.length === 0) return rows;
