@@ -63,6 +63,7 @@ const Chat = () => {
       const { data } = await supabase
         .from("chat_messages")
         .select("*")
+        .gte("created_at", windowStartIso())
         .order("created_at", { ascending: true })
         .limit(200);
       const enriched = await enrichAuthors((data ?? []) as ChatMessage[]);
@@ -71,8 +72,16 @@ const Chat = () => {
         setLoading(false);
       }
     })();
+    // Periodically drop messages older than the 24h window from local state
+    const prune = setInterval(() => {
+      const cutoff = Date.now() - CHAT_WINDOW_HOURS * 60 * 60 * 1000;
+      setMessages((prev) =>
+        prev.filter((m) => new Date(m.created_at).getTime() >= cutoff)
+      );
+    }, 60_000);
     return () => {
       active = false;
+      clearInterval(prune);
     };
   }, []);
 
