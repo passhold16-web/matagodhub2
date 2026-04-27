@@ -67,7 +67,13 @@ export const BuildCard = ({
   return (
     <>
       <article
-        onClick={onOpen}
+        onClick={(e) => {
+          // Only fire when the click originated on the card itself, not on a
+          // nested button / link / anchor (Heart vote, dropdown, username…).
+          const target = e.target as HTMLElement;
+          if (target.closest("button, a, [role='menuitem']")) return;
+          onOpen?.();
+        }}
         className="neon-border bg-card/80 backdrop-blur-xl p-5 rounded-lg group transition-transform hover:-translate-y-1 duration-300 cursor-pointer relative"
       >
         <header className="flex items-start justify-between gap-3 mb-2">
