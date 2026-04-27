@@ -60,6 +60,7 @@ export const ITEMS = [
   "BlackGlasses", "Metal Coat", "Pixie Plate",
   "Shell Bell", "Quick Claw", "King's Rock", "Razor Claw",
   "Scope Lens", "Muscle Band", "Wise Glasses",
+  "Loaded Dice",
 ] as const;
 
 // English -> Spanish items (PokeMMO oficial / Bulbapedia ES).
