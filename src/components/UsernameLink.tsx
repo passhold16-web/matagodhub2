@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import type { ReactNode, MouseEvent, TouchEvent } from "react";
+import type { ReactNode, MouseEvent } from "react";
 
 interface UsernameLinkProps {
   username?: string | null;
@@ -16,11 +16,10 @@ interface UsernameLinkProps {
  * Universal username link: navigates to /perfil/:username from anywhere
  * (builds, foro, comments, tournament registrations, chat, DMs…).
  *
- * Visually neutral: inherits color, no underline, just a pointer cursor.
- * Falls back to a plain <span> if the username is missing.
+ * Renders a real <a> via React Router's <Link>, with a generous tap target
+ * and `touch-manipulation` so it works reliably on Android / iOS.
  *
- * Stops mouse / touch / pointer events on multiple phases so a parent
- * card with onClick (e.g. forum post tile) cannot steal the click.
+ * Falls back to a plain <span> if the username is missing.
  */
 export const UsernameLink = ({
   username,
@@ -36,11 +35,9 @@ export const UsernameLink = ({
     return <span className={className}>{label}</span>;
   }
 
-  const stopAll = (e: MouseEvent | TouchEvent) => {
-    if (stopPropagation) e.stopPropagation();
-  };
-
   const handleClick = (e: MouseEvent<HTMLAnchorElement>) => {
+    // Prevent parent card onClicks from intercepting navigation,
+    // but DO NOT preventDefault — we want React Router to handle it.
     if (stopPropagation) e.stopPropagation();
     onBeforeNavigate?.();
   };
@@ -49,10 +46,9 @@ export const UsernameLink = ({
     <Link
       to={`/perfil/${encodeURIComponent(username)}`}
       onClick={handleClick}
-      onMouseDown={stopAll}
-      onTouchStart={stopAll}
       aria-label={ariaLabel ?? `Ver perfil de ${username}`}
-      className={`relative z-10 cursor-pointer no-underline hover:no-underline ${className}`}
+      style={{ touchAction: "manipulation" }}
+      className={`relative z-20 inline-flex items-center cursor-pointer no-underline hover:no-underline px-1 -mx-1 py-0.5 -my-0.5 rounded ${className}`}
     >
       {label}
     </Link>
