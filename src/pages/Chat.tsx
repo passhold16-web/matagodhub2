@@ -171,6 +171,23 @@ const Chat = () => {
     }
   };
 
+  const handleClearAll = async () => {
+    if (!isAdmin) return;
+    if (!confirm("¿Borrar TODOS los mensajes del chat? Esta acción no se puede deshacer."))
+      return;
+    // Use a permissive filter so RLS-eligible rows are deleted.
+    const { error } = await supabase
+      .from("chat_messages")
+      .delete()
+      .gte("created_at", "1970-01-01");
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+      return;
+    }
+    setMessages([]);
+    toast({ title: "Chat limpiado", description: "Todos los mensajes han sido borrados." });
+  };
+
   const formatTime = (iso: string) => {
     try {
       return new Date(iso).toLocaleTimeString("es-ES", {
