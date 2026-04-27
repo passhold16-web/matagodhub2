@@ -145,10 +145,14 @@ export const BuildCard = ({
               type="button"
               disabled={busy}
               onClick={(e) => {
+                e.preventDefault();
                 e.stopPropagation();
-                toggle();
+                void toggle();
               }}
-              className={`flex items-center gap-1 group/vote transition-colors ${
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+              style={{ touchAction: "manipulation" }}
+              className={`flex items-center gap-1 group/vote transition-colors p-1 -m-1 ${
                 voted ? "text-primary" : "hover:text-primary"
               }`}
               aria-label={voted ? "Quitar voto" : "Votar"}
