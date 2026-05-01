@@ -24,7 +24,7 @@ export const AuthorBadge = ({ username, role, className = "", noLink = false }: 
   const Icon = meta?.icon;
   const isSpecial = !!meta;
 
-  const stop = (e: MouseEvent) => e.stopPropagation();
+  const stop = (e: { stopPropagation: () => void }) => e.stopPropagation();
 
   const inner = (
     <>
