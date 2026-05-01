@@ -367,6 +367,14 @@ export const TournamentsSection = () => {
             : []
         }
       />
+
+      <TournamentDetailModal
+        open={!!detailFor}
+        onOpenChange={(o) => !o && setDetailFor(null)}
+        tournament={detailFor}
+        participantCount={detailFor ? countForTournament(detailFor.id) : 0}
+        onRegister={() => detailFor && handleRegister(detailFor)}
+      />
     </section>
   );
 };
