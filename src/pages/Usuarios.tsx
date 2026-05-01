@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { usePresence } from "@/hooks/usePresence";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,7 @@ const ROLE_BADGES: Record<string, { label: string; icon: typeof Crown; tone: str
 const Usuarios = () => {
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
+  const { isOnline, count: onlineCount } = usePresence();
   const [users, setUsers] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
@@ -106,6 +108,15 @@ const Usuarios = () => {
             <p className="text-foreground/60 mt-2">
               Explora a todos los entrenadores de la comunidad y envíales un mensaje.
             </p>
+            <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-md glass border border-primary/30">
+              <span className="relative flex items-center justify-center">
+                <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+                <span className="absolute h-3 w-3 rounded-full bg-primary/40 animate-ping" />
+              </span>
+              <span className="font-display text-[10px] tracking-widest text-primary">
+                {onlineCount} EN LÍNEA AHORA
+              </span>
+            </div>
           </header>
 
           <div className="relative mb-6">
@@ -141,21 +152,29 @@ const Usuarios = () => {
                     className="neon-border bg-card/80 backdrop-blur-xl rounded-lg p-4 flex flex-col gap-3 transition-transform hover:-translate-y-1 duration-300"
                   >
                     <div className="flex items-center gap-3">
-                      <Link
-                        to={`/perfil/${encodeURIComponent(u.username)}`}
-                        className="h-14 w-14 rounded-full bg-gradient-neon flex items-center justify-center shrink-0 shadow-[0_0_15px_hsl(var(--primary)/0.4)] overflow-hidden"
-                        aria-label={`Ver perfil de ${u.username}`}
-                      >
-                        {u.avatar_url ? (
-                          <img
-                            src={u.avatar_url}
-                            alt={u.username}
-                            className="h-full w-full object-cover"
+                      <div className="relative shrink-0">
+                        <Link
+                          to={`/perfil/${encodeURIComponent(u.username)}`}
+                          className="h-14 w-14 rounded-full bg-gradient-neon flex items-center justify-center shadow-[0_0_15px_hsl(var(--primary)/0.4)] overflow-hidden block"
+                          aria-label={`Ver perfil de ${u.username}`}
+                        >
+                          {u.avatar_url ? (
+                            <img
+                              src={u.avatar_url}
+                              alt={u.username}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <UserIcon size={26} className="text-background" />
+                          )}
+                        </Link>
+                        {isOnline(u.user_id) && (
+                          <span
+                            className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full bg-primary border-2 border-background shadow-[0_0_8px_hsl(var(--primary))]"
+                            title="En línea"
                           />
-                        ) : (
-                          <UserIcon size={26} className="text-background" />
                         )}
-                      </Link>
+                      </div>
                       <div className="min-w-0 flex-1">
                         <Link
                           to={`/perfil/${encodeURIComponent(u.username)}`}
