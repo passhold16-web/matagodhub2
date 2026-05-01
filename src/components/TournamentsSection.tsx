@@ -209,7 +209,12 @@ export const TournamentsSection = () => {
               return (
                 <article
                   key={t.id}
-                  className="glass-strong rounded-lg p-6 group hover:border-accent/60 transition-all animate-fade-in-up"
+                  onClick={(e) => {
+                    const target = e.target as HTMLElement;
+                    if (target.closest("button, a, [role='menuitem']")) return;
+                    setDetailFor(t);
+                  }}
+                  className="glass-strong rounded-lg p-6 group hover:border-accent/60 transition-all animate-fade-in-up cursor-pointer"
                   style={{ animationDelay: `${i * 60}ms` }}
                 >
                   <div className="flex items-start justify-between gap-4 mb-4">
