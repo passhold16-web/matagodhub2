@@ -11,7 +11,7 @@ export const OnlineUsersWidget = () => {
     <>
       <button
         onClick={() => setOpen((o) => !o)}
-        className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-md glass border border-primary/30 hover:border-primary transition-colors group"
+        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md glass border border-primary/30 hover:border-primary transition-colors group"
         aria-label={`${count} usuarios en línea`}
         title={`${count} en línea`}
       >

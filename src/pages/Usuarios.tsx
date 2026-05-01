@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { usePresence } from "@/hooks/usePresence";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,7 @@ const ROLE_BADGES: Record<string, { label: string; icon: typeof Crown; tone: str
 const Usuarios = () => {
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
+  const { isOnline, count: onlineCount } = usePresence();
   const [users, setUsers] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
