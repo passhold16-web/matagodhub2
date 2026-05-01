@@ -4,6 +4,7 @@ import { LogOut, Mail, Menu, Settings, User as UserIcon, X } from "lucide-react"
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { OnlineUsersWidget } from "@/components/OnlineUsersWidget";
 
 const NAV_ITEMS = [
   { id: "home", label: "Inicio", route: false },
@@ -117,6 +118,7 @@ export const Navbar = ({ active, onNavigate }: NavbarProps) => {
 
         {/* Auth area — desktop */}
         <div className="hidden md:flex items-center gap-2 shrink-0">
+          <OnlineUsersWidget />
           {!loading && user ? (
             <>
               <button
@@ -174,13 +176,16 @@ export const Navbar = ({ active, onNavigate }: NavbarProps) => {
         </div>
 
         {/* Mobile burger */}
-        <button
-          className="md:hidden p-2 text-foreground"
-          onClick={() => setOpen((o) => !o)}
-          aria-label="Abrir menú"
-        >
-          {open ? <X size={22} /> : <Menu size={22} />}
-        </button>
+        <div className="md:hidden flex items-center gap-1">
+          <OnlineUsersWidget />
+          <button
+            className="p-2 text-foreground"
+            onClick={() => setOpen((o) => !o)}
+            aria-label="Abrir menú"
+          >
+            {open ? <X size={22} /> : <Menu size={22} />}
+          </button>
+        </div>
       </div>
 
       {open && (
