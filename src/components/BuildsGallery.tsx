@@ -78,20 +78,15 @@ export const BuildsGallery = () => {
     fetchBuilds();
   }, [fetchBuilds]);
 
-  // Realtime: keep builds list in sync (insert/update/delete + vote changes)
+  // Realtime: keep builds list in sync (insert/update/delete).
+  // Vote changes are handled per-card by useBuildVote, so we don't refetch
+  // the whole list on every like — that caused layout flashes.
   useEffect(() => {
     const channel = supabase
       .channel("builds-list")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "builds" },
-        () => {
-          void fetchBuilds();
-        }
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "votes" },
         () => {
           void fetchBuilds();
         }

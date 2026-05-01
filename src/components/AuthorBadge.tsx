@@ -1,6 +1,7 @@
 import { Crown, Youtube, ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
 
+
 interface Props {
   username: string;
   role?: string | null;
@@ -23,33 +24,18 @@ export const AuthorBadge = ({ username, role, className = "", noLink = false }: 
   const Icon = meta?.icon;
   const isSpecial = !!meta;
 
-  const nameContent = (
-    <span
-      className={`font-display tracking-wide ${
-        isSpecial ? "text-accent neon-text-gold" : "text-accent"
-      }`}
-    >
-      {username}
-    </span>
-  );
+  const stop = (e: { stopPropagation: () => void }) => e.stopPropagation();
 
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 font-body text-xs ${className}`}
-      onClick={(e) => e.stopPropagation()}
-    >
+  const inner = (
+    <>
       <span className="text-foreground/50">Por:</span>
-      {noLink ? (
-        nameContent
-      ) : (
-        <Link
-          to={`/perfil/${encodeURIComponent(username)}`}
-          className="no-underline hover:no-underline"
-          aria-label={`Ver perfil de ${username}`}
-        >
-          {nameContent}
-        </Link>
-      )}
+      <span
+        className={`font-display tracking-wide ${
+          isSpecial ? "text-accent neon-text-gold" : "text-accent"
+        }`}
+      >
+        {username}
+      </span>
       {meta && Icon && (
         <span
           className={`inline-flex items-center gap-0.5 px-1.5 py-px rounded-sm border text-[9px] font-display tracking-widest ${meta.tone}`}
@@ -58,6 +44,28 @@ export const AuthorBadge = ({ username, role, className = "", noLink = false }: 
           {meta.label}
         </span>
       )}
-    </span>
+    </>
+  );
+
+  if (noLink) {
+    return (
+      <span className={`inline-flex items-center gap-1.5 font-body text-xs ${className}`}>
+        {inner}
+      </span>
+    );
+  }
+
+  return (
+    <Link
+      to={`/perfil/${encodeURIComponent(username)}`}
+      onClick={stop}
+      onMouseDown={stop}
+      onTouchStart={stop}
+      style={{ touchAction: "manipulation" }}
+      aria-label={`Ver perfil de ${username}`}
+      className={`relative z-20 inline-flex items-center gap-1.5 font-body text-xs no-underline hover:no-underline px-1 -mx-1 py-0.5 -my-0.5 rounded hover:bg-primary/5 ${className}`}
+    >
+      {inner}
+    </Link>
   );
 };

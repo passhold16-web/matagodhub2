@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { CreateTournamentModal } from "./CreateTournamentModal";
 import { TournamentRegisterModal } from "./TournamentRegisterModal";
 import { TournamentParticipantsModal } from "./TournamentParticipantsModal";
+import { TournamentDetailModal } from "./TournamentDetailModal";
 import { useNavigate } from "react-router-dom";
 import { UsernameLink } from "@/components/UsernameLink";
 
@@ -59,6 +60,7 @@ export const TournamentsSection = () => {
   const [createOpen, setCreateOpen] = useState(false);
   const [registerFor, setRegisterFor] = useState<TournamentRow | null>(null);
   const [participantsFor, setParticipantsFor] = useState<TournamentRow | null>(null);
+  const [detailFor, setDetailFor] = useState<TournamentRow | null>(null);
 
   const loadRegistrations = async () => {
     const { data } = await supabase
@@ -207,7 +209,12 @@ export const TournamentsSection = () => {
               return (
                 <article
                   key={t.id}
-                  className="glass-strong rounded-lg p-6 group hover:border-accent/60 transition-all animate-fade-in-up"
+                  onClick={(e) => {
+                    const target = e.target as HTMLElement;
+                    if (target.closest("button, a, [role='menuitem']")) return;
+                    setDetailFor(t);
+                  }}
+                  className="glass-strong rounded-lg p-6 group hover:border-accent/60 transition-all animate-fade-in-up cursor-pointer"
                   style={{ animationDelay: `${i * 60}ms` }}
                 >
                   <div className="flex items-start justify-between gap-4 mb-4">
@@ -359,6 +366,14 @@ export const TournamentsSection = () => {
             ? registrations.filter((r) => r.tournament_id === participantsFor.id)
             : []
         }
+      />
+
+      <TournamentDetailModal
+        open={!!detailFor}
+        onOpenChange={(o) => !o && setDetailFor(null)}
+        tournament={detailFor}
+        participantCount={detailFor ? countForTournament(detailFor.id) : 0}
+        onRegister={() => detailFor && handleRegister(detailFor)}
       />
     </section>
   );

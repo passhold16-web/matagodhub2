@@ -292,7 +292,14 @@ export const CreateBuildModal = ({
                         </button>
                       </>
                     ) : (
-                      <Plus size={16} className="text-foreground/20" />
+                      <button
+                        type="button"
+                        onClick={() => searchRef.current?.focus()}
+                        aria-label="Añadir Pokémon"
+                        className="absolute inset-0 flex items-center justify-center rounded-md hover:bg-primary/10 hover:border-primary/40 transition-colors text-foreground/30 hover:text-primary"
+                      >
+                        <Plus size={18} />
+                      </button>
                     )}
                   </div>
                 );

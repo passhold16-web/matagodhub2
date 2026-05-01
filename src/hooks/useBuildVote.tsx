@@ -14,10 +14,11 @@ export function useBuildVote(buildId: string, initialCount: number) {
   const [count, setCount] = useState(initialCount);
   const [busy, setBusy] = useState(false);
 
-  // Sync count when parent changes it
+  // Sync from parent only when buildId changes (avoids overwriting optimistic updates).
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     setCount(initialCount);
-  }, [initialCount]);
+  }, [buildId]);
 
   // Load whether the current user has voted
   useEffect(() => {
