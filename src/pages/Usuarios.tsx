@@ -108,6 +108,15 @@ const Usuarios = () => {
             <p className="text-foreground/60 mt-2">
               Explora a todos los entrenadores de la comunidad y envíales un mensaje.
             </p>
+            <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-md glass border border-primary/30">
+              <span className="relative flex items-center justify-center">
+                <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+                <span className="absolute h-3 w-3 rounded-full bg-primary/40 animate-ping" />
+              </span>
+              <span className="font-display text-[10px] tracking-widest text-primary">
+                {onlineCount} EN LÍNEA AHORA
+              </span>
+            </div>
           </header>
 
           <div className="relative mb-6">
