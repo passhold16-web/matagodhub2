@@ -1,6 +1,6 @@
 import { Crown, Youtube, ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
-import type { MouseEvent } from "react";
+
 
 interface Props {
   username: string;
