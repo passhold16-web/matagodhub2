@@ -248,6 +248,19 @@ export const Navbar = ({ active, onNavigate }: NavbarProps) => {
                       </span>
                     )}
                   </Button>
+                  {isStaff && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setOpen(false);
+                        navigate("/admin");
+                      }}
+                      className="w-full font-display text-xs tracking-widest border-accent text-accent justify-center"
+                    >
+                      <Shield size={12} className="mr-1.5" /> PANEL ADMIN
+                    </Button>
+                  )}
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
