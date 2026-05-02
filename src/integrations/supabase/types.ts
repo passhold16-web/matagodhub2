@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      banned_users: {
+        Row: {
+          banned_by: string
+          created_at: string
+          id: string
+          reason: string | null
+          user_id: string
+        }
+        Insert: {
+          banned_by: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+          user_id: string
+        }
+        Update: {
+          banned_by?: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       builds: {
         Row: {
           created_at: string
@@ -350,6 +374,11 @@ export type Database = {
       has_app_role: {
         Args: { _role: string; _user_id: string }
         Returns: boolean
+      }
+      is_banned: { Args: { _user_id: string }; Returns: boolean }
+      set_user_role: {
+        Args: { _role: string; _user_id: string }
+        Returns: undefined
       }
     }
     Enums: {
