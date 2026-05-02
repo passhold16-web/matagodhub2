@@ -78,6 +78,8 @@ export const Navbar = ({ active, onNavigate }: NavbarProps) => {
   };
 
   const displayName = profile?.username ?? user?.email?.split("@")[0] ?? "TRAINER";
+  const role = profile?.role?.toLowerCase();
+  const isStaff = role === "admin" || role === "mod";
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 glass-strong border-b border-primary/30">
