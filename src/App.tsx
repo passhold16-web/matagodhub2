@@ -15,6 +15,7 @@ import Foro from "./pages/Foro";
 import Mensajes from "./pages/Mensajes";
 import Conversacion from "./pages/Conversacion";
 import Usuarios from "./pages/Usuarios";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="/mensajes" element={<Mensajes />} />
             <Route path="/mensajes/:username" element={<Conversacion />} />
             <Route path="/usuarios" element={<Usuarios />} />
+            <Route path="/admin" element={<Admin />} />
             <Route path="/perfil/editar" element={<EditarPerfil />} />
             <Route path="/perfil/:username" element={<Perfil />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

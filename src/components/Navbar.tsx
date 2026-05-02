@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Mail, Menu, Settings, User as UserIcon, X } from "lucide-react";
+import { LogOut, Mail, Menu, Settings, Shield, User as UserIcon, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -78,6 +78,8 @@ export const Navbar = ({ active, onNavigate }: NavbarProps) => {
   };
 
   const displayName = profile?.username ?? user?.email?.split("@")[0] ?? "TRAINER";
+  const role = profile?.role?.toLowerCase();
+  const isStaff = role === "admin" || role === "mod";
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 glass-strong border-b border-primary/30">
@@ -131,6 +133,18 @@ export const Navbar = ({ active, onNavigate }: NavbarProps) => {
                   {displayName}
                 </span>
               </button>
+              {isStaff && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate("/admin")}
+                  className="font-display text-xs tracking-widest text-accent hover:text-accent hover:bg-accent/10"
+                  aria-label="Panel admin"
+                  title="Panel admin"
+                >
+                  <Shield size={14} />
+                </Button>
+              )}
               <Button
                 variant="ghost"
                 size="sm"
@@ -234,6 +248,19 @@ export const Navbar = ({ active, onNavigate }: NavbarProps) => {
                       </span>
                     )}
                   </Button>
+                  {isStaff && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setOpen(false);
+                        navigate("/admin");
+                      }}
+                      className="w-full font-display text-xs tracking-widest border-accent text-accent justify-center"
+                    >
+                      <Shield size={12} className="mr-1.5" /> PANEL ADMIN
+                    </Button>
+                  )}
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
