@@ -133,6 +133,18 @@ export const Navbar = ({ active, onNavigate }: NavbarProps) => {
                   {displayName}
                 </span>
               </button>
+              {isStaff && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate("/admin")}
+                  className="font-display text-xs tracking-widest text-accent hover:text-accent hover:bg-accent/10"
+                  aria-label="Panel admin"
+                  title="Panel admin"
+                >
+                  <Shield size={14} />
+                </Button>
+              )}
               <Button
                 variant="ghost"
                 size="sm"
