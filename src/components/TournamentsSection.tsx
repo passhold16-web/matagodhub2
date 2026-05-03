@@ -378,8 +378,12 @@ export const TournamentsSection = () => {
 
       <CreateTournamentModal
         open={createOpen}
-        onOpenChange={setCreateOpen}
+        onOpenChange={(o) => {
+          setCreateOpen(o);
+          if (!o) setEditing(null);
+        }}
         onCreated={load}
+        editing={editing}
       />
 
       <TournamentRegisterModal
