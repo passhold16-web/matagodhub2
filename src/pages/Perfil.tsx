@@ -8,6 +8,7 @@ import { BuildCard } from "@/components/BuildCard";
 import { BuildDetailModal } from "@/components/BuildDetailModal";
 import { CreateBuildModal, type EditingBuild } from "@/components/CreateBuildModal";
 import { Button } from "@/components/ui/button";
+import { TrainerBadge } from "@/components/TrainerBadge";
 import {
   Loader2,
   ArrowLeft,
@@ -159,9 +160,12 @@ const Perfil = () => {
                     <p className="mt-3 text-foreground/70 max-w-xl">
                       {profile.bio || "Este trainer aún no ha escrito su bio."}
                     </p>
-                    <p className="mt-4 font-display text-xs tracking-widest text-accent">
-                      {builds.length} {builds.length === 1 ? "BUILD PUBLICADA" : "BUILDS PUBLICADAS"}
-                    </p>
+                    <div className="mt-4 flex flex-wrap items-center justify-center md:justify-start gap-2">
+                      <TrainerBadge buildCount={builds.length} size="md" showProgress />
+                      <span className="font-display text-xs tracking-widest text-accent">
+                        · {builds.length} {builds.length === 1 ? "BUILD PUBLICADA" : "BUILDS PUBLICADAS"}
+                      </span>
+                    </div>
                     {currentUser && currentUser.id !== profile.user_id && (
                       <div className="mt-5 flex justify-center md:justify-start">
                         <Button
