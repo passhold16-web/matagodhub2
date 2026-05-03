@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { Trophy, Calendar, Users, Plus, Trash2, ExternalLink, Loader2, UserPlus, MessageCircle } from "lucide-react";
+import { Trophy, Calendar, Users, Plus, Trash2, Pencil, ExternalLink, Loader2, UserPlus, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { CreateTournamentModal } from "./CreateTournamentModal";
+import { CreateTournamentModal, type EditingTournament } from "./CreateTournamentModal";
 import { TournamentRegisterModal } from "./TournamentRegisterModal";
 import { TournamentParticipantsModal } from "./TournamentParticipantsModal";
 import { TournamentDetailModal } from "./TournamentDetailModal";
@@ -51,16 +51,19 @@ const formatDate = (iso: string) => {
 };
 
 export const TournamentsSection = () => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [tournaments, setTournaments] = useState<TournamentRow[]>([]);
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [loading, setLoading] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
+  const [editing, setEditing] = useState<EditingTournament | null>(null);
   const [registerFor, setRegisterFor] = useState<TournamentRow | null>(null);
   const [participantsFor, setParticipantsFor] = useState<TournamentRow | null>(null);
   const [detailFor, setDetailFor] = useState<TournamentRow | null>(null);
+
+  const isStaff = profile?.role === "admin" || profile?.role === "mod";
 
   const loadRegistrations = async () => {
     const { data } = await supabase
@@ -204,6 +207,7 @@ export const TournamentsSection = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {tournaments.map((t, i) => {
               const isOwner = user?.id === t.user_id;
+              const canManage = isOwner || isStaff;
               const tRegs = registrations.filter((r) => r.tournament_id === t.id);
               
               return (
@@ -311,16 +315,44 @@ export const TournamentsSection = () => {
                         </Button>
                       </a>
                     )}
-                    {isOwner && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDelete(t.id)}
-                        className="text-destructive hover:bg-destructive/10"
-                        aria-label="Borrar torneo"
-                      >
-                        <Trash2 size={16} />
-                      </Button>
+                    {canManage && (
+                      <>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditing({
+                              id: t.id,
+                              name: t.name,
+                              description: t.description,
+                              tier: t.tier as EditingTournament["tier"],
+                              event_date: t.event_date,
+                              max_players: t.max_players,
+                              prize: t.prize,
+                              format: t.format,
+                              contact_url: t.contact_url,
+                            });
+                            setCreateOpen(true);
+                          }}
+                          className="text-accent hover:bg-accent/10"
+                          aria-label="Editar torneo"
+                        >
+                          <Pencil size={16} />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(t.id);
+                          }}
+                          className="text-destructive hover:bg-destructive/10"
+                          aria-label="Borrar torneo"
+                        >
+                          <Trash2 size={16} />
+                        </Button>
+                      </>
                     )}
                   </div>
 
@@ -346,8 +378,12 @@ export const TournamentsSection = () => {
 
       <CreateTournamentModal
         open={createOpen}
-        onOpenChange={setCreateOpen}
+        onOpenChange={(o) => {
+          setCreateOpen(o);
+          if (!o) setEditing(null);
+        }}
         onCreated={load}
+        editing={editing}
       />
 
       <TournamentRegisterModal
