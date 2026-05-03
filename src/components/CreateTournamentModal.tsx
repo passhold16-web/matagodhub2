@@ -15,13 +15,32 @@ import { useToast } from "@/hooks/use-toast";
 import { TIERS, type Tier } from "@/data/mockBuilds";
 import { Loader2 } from "lucide-react";
 
+export interface EditingTournament {
+  id: string;
+  name: string;
+  description: string | null;
+  tier: Tier;
+  event_date: string;
+  max_players: number;
+  prize: string | null;
+  format: string | null;
+  contact_url: string | null;
+}
+
 interface Props {
   open: boolean;
   onOpenChange: (o: boolean) => void;
   onCreated: () => void;
+  editing?: EditingTournament | null;
 }
 
-export const CreateTournamentModal = ({ open, onOpenChange, onCreated }: Props) => {
+const toLocalInput = (iso: string) => {
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+
+export const CreateTournamentModal = ({ open, onOpenChange, onCreated, editing }: Props) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [name, setName] = useState("");
@@ -34,6 +53,8 @@ export const CreateTournamentModal = ({ open, onOpenChange, onCreated }: Props) 
   const [contactUrl, setContactUrl] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  const isEdit = !!editing;
+
   useEffect(() => {
     if (!open) {
       setName("");
@@ -44,8 +65,19 @@ export const CreateTournamentModal = ({ open, onOpenChange, onCreated }: Props) 
       setPrize("");
       setFormat("");
       setContactUrl("");
+      return;
     }
-  }, [open]);
+    if (editing) {
+      setName(editing.name);
+      setDescription(editing.description ?? "");
+      setTier(editing.tier);
+      setEventDate(toLocalInput(editing.event_date));
+      setMaxPlayers(editing.max_players);
+      setPrize(editing.prize ?? "");
+      setFormat(editing.format ?? "");
+      setContactUrl(editing.contact_url ?? "");
+    }
+  }, [open, editing]);
 
   const handleSubmit = async () => {
     if (!user) return;
@@ -58,7 +90,7 @@ export const CreateTournamentModal = ({ open, onOpenChange, onCreated }: Props) 
       return;
     }
     const dateObj = new Date(eventDate);
-    if (dateObj.getTime() < Date.now() - 3600 * 1000) {
+    if (!isEdit && dateObj.getTime() < Date.now() - 3600 * 1000) {
       toast({
         title: "Fecha inválida",
         description: "El torneo debe ser en el futuro.",
@@ -68,8 +100,7 @@ export const CreateTournamentModal = ({ open, onOpenChange, onCreated }: Props) 
     }
 
     setSubmitting(true);
-    const { error } = await supabase.from("tournaments").insert({
-      user_id: user.id,
+    const payload = {
       name: name.trim(),
       description: description.trim() || null,
       tier,
@@ -78,15 +109,20 @@ export const CreateTournamentModal = ({ open, onOpenChange, onCreated }: Props) 
       prize: prize.trim() || null,
       format: format.trim() || null,
       contact_url: contactUrl.trim() || null,
-      status: "OPEN",
-    });
+    };
+    const { error } = isEdit
+      ? await supabase.from("tournaments").update(payload).eq("id", editing!.id)
+      : await supabase.from("tournaments").insert({ ...payload, user_id: user.id, status: "OPEN" });
     setSubmitting(false);
 
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
       return;
     }
-    toast({ title: "¡Torneo publicado!", description: "Ya aparece en la sección Torneos." });
+    toast({
+      title: isEdit ? "Torneo actualizado" : "¡Torneo publicado!",
+      description: isEdit ? "Los cambios se han guardado." : "Ya aparece en la sección Torneos.",
+    });
     onOpenChange(false);
     onCreated();
   };
@@ -96,10 +132,12 @@ export const CreateTournamentModal = ({ open, onOpenChange, onCreated }: Props) 
       <DialogContent className="glass-strong border-primary/40 max-w-xl max-h-[92vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-display text-2xl tracking-wider neon-text-gold">
-            PUBLICAR TORNEO
+            {isEdit ? "EDITAR TORNEO" : "PUBLICAR TORNEO"}
           </DialogTitle>
           <DialogDescription className="text-foreground/60">
-            Anuncia tu torneo a toda la comunidad MATAGOD.
+            {isEdit
+              ? "Actualiza la información del torneo."
+              : "Anuncia tu torneo a toda la comunidad MATAGOD."}
           </DialogDescription>
         </DialogHeader>
 
