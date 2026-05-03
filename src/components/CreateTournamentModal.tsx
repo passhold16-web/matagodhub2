@@ -265,7 +265,7 @@ export const CreateTournamentModal = ({ open, onOpenChange, onCreated, editing }
             className="w-full font-display tracking-[0.3em] bg-gradient-neon text-background hover:opacity-90 shadow-[0_0_20px_hsl(var(--primary)/0.4)]"
           >
             {submitting ? <Loader2 size={16} className="animate-spin mr-2" /> : null}
-            PUBLICAR TORNEO
+            {isEdit ? "GUARDAR CAMBIOS" : "PUBLICAR TORNEO"}
           </Button>
         </div>
       </DialogContent>
