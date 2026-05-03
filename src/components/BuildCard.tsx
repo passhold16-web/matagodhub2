@@ -43,13 +43,16 @@ export const BuildCard = ({
   onEdit,
   onDeleted,
 }: BuildCardProps) => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { toast } = useToast();
   const { voted, count, toggle, busy } = useBuildVote(buildId, build.votes);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
   const isOwner = user?.id === ownerId;
+  const isStaff = profile?.role === "admin" || profile?.role === "mod";
+  const canEdit = isOwner || isStaff;
+  const canDelete = isOwner || isStaff;
 
   const handleDelete = async () => {
     setDeleting(true);
@@ -89,7 +92,7 @@ export const BuildCard = ({
           </div>
           <div className="flex items-center gap-1 shrink-0">
             <span className={`tier-badge tier-${build.tier}`}>{build.tier}</span>
-            {isOwner && (
+            {canEdit && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                   <button
