@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePresence } from "@/hooks/usePresence";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { TrainerBadge } from "@/components/TrainerBadge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -194,6 +195,9 @@ const Usuarios = () => {
                           <span className="text-[10px] font-display tracking-widest text-foreground/50">
                             {u.build_count} {u.build_count === 1 ? "BUILD" : "BUILDS"}
                           </span>
+                        </div>
+                        <div className="mt-1.5">
+                          <TrainerBadge buildCount={u.build_count} />
                         </div>
                       </div>
                     </div>
