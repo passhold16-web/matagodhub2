@@ -82,14 +82,20 @@ export const BuildsGallery = () => {
   // Vote changes are handled per-card by useBuildVote, so we don't refetch
   // the whole list on every like — that caused layout flashes.
   useEffect(() => {
+    // Only react to inserts/deletes. Updates (votes_count bumps) are handled
+    // per-card by useBuildVote and would otherwise cause the whole list to
+    // reorder/refetch on every like, which feels like the screen jumps.
     const channel = supabase
       .channel("builds-list")
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "builds" },
-        () => {
-          void fetchBuilds();
-        }
+        { event: "INSERT", schema: "public", table: "builds" },
+        () => void fetchBuilds()
+      )
+      .on(
+        "postgres_changes",
+        { event: "DELETE", schema: "public", table: "builds" },
+        () => void fetchBuilds()
       )
       .subscribe();
 
