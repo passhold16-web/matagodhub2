@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Hero } from "@/components/Hero";
+import { NewsSection } from "@/components/NewsSection";
 import { BuildsGallery } from "@/components/BuildsGallery";
 import { TournamentsSection } from "@/components/TournamentsSection";
 import { CommunitySection } from "@/components/CommunitySection";
@@ -37,6 +38,7 @@ const Index = () => {
       <Navbar active={active} onNavigate={setActive} />
       <main className="flex-1">
         <Hero onPrimary={() => goTo("builds")} onSecondary={() => goTo("torneos")} />
+        <NewsSection />
         <BuildsGallery />
         <TournamentsSection />
         <CommunitySection />
