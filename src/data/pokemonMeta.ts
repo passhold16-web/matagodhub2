@@ -61,6 +61,23 @@ export const ITEMS = [
   "Shell Bell", "Quick Claw", "King's Rock", "Razor Claw",
   "Scope Lens", "Muscle Band", "Wise Glasses",
   "Loaded Dice",
+  // Gems (combat one-time boost)
+  "Normal Gem", "Fire Gem", "Water Gem", "Electric Gem", "Grass Gem",
+  "Ice Gem", "Fighting Gem", "Poison Gem", "Ground Gem", "Flying Gem",
+  "Psychic Gem", "Bug Gem", "Rock Gem", "Ghost Gem", "Dragon Gem",
+  "Dark Gem", "Steel Gem", "Fairy Gem",
+  // Pinch / stat berries
+  "Apicot Berry", "Ganlon Berry", "Lansat Berry", "Starf Berry", "Micle Berry",
+  "Custap Berry", "Enigma Berry", "Jaboca Berry", "Rowap Berry", "Kee Berry", "Maranga Berry",
+  // Status-cure berries
+  "Cheri Berry", "Pecha Berry", "Rawst Berry", "Aspear Berry", "Persim Berry",
+  // Type-resist berries
+  "Occa Berry", "Passho Berry", "Wacan Berry", "Rindo Berry", "Yache Berry",
+  "Chople Berry", "Kebia Berry", "Shuca Berry", "Coba Berry", "Payapa Berry",
+  "Tanga Berry", "Charti Berry", "Kasib Berry", "Haban Berry", "Colbur Berry",
+  "Babiri Berry", "Chilan Berry", "Roseli Berry",
+  // HP-restore berries
+  "Oran Berry", "Figy Berry", "Wiki Berry", "Mago Berry", "Aguav Berry", "Iapapa Berry",
 ] as const;
 
 // English -> Spanish items (PokeMMO oficial / Bulbapedia ES).
@@ -119,6 +136,69 @@ export const ITEM_ES: Record<string, string> = {
   "Muscle Band": "Cinta Músculo",
   "Wise Glasses": "Gafas Especiales",
   "Loaded Dice": "Dados Trucados",
+  // Gemas
+  "Normal Gem": "Gema Normal",
+  "Fire Gem": "Gema Fuego",
+  "Water Gem": "Gema Agua",
+  "Electric Gem": "Gema Eléctrica",
+  "Grass Gem": "Gema Planta",
+  "Ice Gem": "Gema Hielo",
+  "Fighting Gem": "Gema Lucha",
+  "Poison Gem": "Gema Veneno",
+  "Ground Gem": "Gema Tierra",
+  "Flying Gem": "Gema Voladora",
+  "Psychic Gem": "Gema Psíquica",
+  "Bug Gem": "Gema Bicho",
+  "Rock Gem": "Gema Roca",
+  "Ghost Gem": "Gema Fantasma",
+  "Dragon Gem": "Gema Dragón",
+  "Dark Gem": "Gema Siniestra",
+  "Steel Gem": "Gema Acero",
+  "Fairy Gem": "Gema Hada",
+  // Bayas de stats / apuro
+  "Apicot Berry": "Baya Aricoc",
+  "Ganlon Berry": "Baya Langus",
+  "Lansat Berry": "Baya Sambia",
+  "Starf Berry": "Baya Arabol",
+  "Micle Berry": "Baya Lima",
+  "Custap Berry": "Baya Tamate",
+  "Enigma Berry": "Baya Enigma",
+  "Jaboca Berry": "Baya Jaboca",
+  "Rowap Berry": "Baya Wikano",
+  "Kee Berry": "Baya Quiui",
+  "Maranga Berry": "Baya Aranja",
+  // Bayas cura-estado
+  "Cheri Berry": "Baya Cereza",
+  "Pecha Berry": "Baya Meloc",
+  "Rawst Berry": "Baya Safre",
+  "Aspear Berry": "Baya Perasi",
+  "Persim Berry": "Baya Caquic",
+  // Bayas resistencia tipo
+  "Occa Berry": "Baya Caco",
+  "Passho Berry": "Baya Hacho",
+  "Wacan Berry": "Baya Anjir",
+  "Rindo Berry": "Baya Drino",
+  "Yache Berry": "Baya Cheri",
+  "Chople Berry": "Baya Pomelo",
+  "Kebia Berry": "Baya Kibia",
+  "Shuca Berry": "Baya Kuo",
+  "Coba Berry": "Baya Baco",
+  "Payapa Berry": "Baya Payapa",
+  "Tanga Berry": "Baya Tanga",
+  "Charti Berry": "Baya Charti",
+  "Kasib Berry": "Baya Kasib",
+  "Haban Berry": "Baya Haban",
+  "Colbur Berry": "Baya Colbur",
+  "Babiri Berry": "Baya Babiri",
+  "Chilan Berry": "Baya Chilan",
+  "Roseli Berry": "Baya Roseli",
+  // Bayas restaurar PS
+  "Oran Berry": "Baya Aranja",
+  "Figy Berry": "Baya Higog",
+  "Wiki Berry": "Baya Wiki",
+  "Mago Berry": "Baya Gomag",
+  "Aguav Berry": "Baya Guaya",
+  "Iapapa Berry": "Baya Pabaya",
 };
 
 export const itemLabel = (i: string) => (i ? ITEM_ES[i] ?? i : "");
