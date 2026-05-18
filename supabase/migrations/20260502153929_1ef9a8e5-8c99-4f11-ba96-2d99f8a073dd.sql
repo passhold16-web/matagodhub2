@@ -104,11 +104,8 @@ DECLARE
   urole text := 'user';
 BEGIN
   uname := COALESCE(NEW.raw_user_meta_data ->> 'username', split_part(NEW.email, '@', 1));
-  IF lower(uname) = 'admin' AND NOT EXISTS (SELECT 1 FROM public.profiles WHERE lower(role)='admin') THEN
-    urole := 'admin';
-  END IF;
   INSERT INTO public.profiles (user_id, username, avatar_url, role)
-  VALUES (NEW.id, uname, NEW.raw_user_meta_data ->> 'avatar_url', urole)
+  VALUES (NEW.id, uname, NEW.raw_user_meta_data ->> 'avatar_url', 'user')
   ON CONFLICT DO NOTHING;
   RETURN NEW;
 END;

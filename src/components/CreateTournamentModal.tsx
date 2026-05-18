@@ -14,6 +14,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { TIERS, type Tier } from "@/data/mockBuilds";
 import { Loader2 } from "lucide-react";
+import { isSafeHttpUrl } from "@/lib/safeUrl";
 
 export interface EditingTournament {
   id: string;
@@ -99,6 +100,16 @@ export const CreateTournamentModal = ({ open, onOpenChange, onCreated, editing }
       return;
     }
 
+    const url = contactUrl.trim();
+    if (url && !isSafeHttpUrl(url)) {
+      toast({
+        title: "Enlace no válido",
+        description: "El enlace de contacto debe empezar por http:// o https://",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setSubmitting(true);
     const payload = {
       name: name.trim(),
@@ -108,7 +119,7 @@ export const CreateTournamentModal = ({ open, onOpenChange, onCreated, editing }
       max_players: maxPlayers,
       prize: prize.trim() || null,
       format: format.trim() || null,
-      contact_url: contactUrl.trim() || null,
+      contact_url: url || null,
     };
     const { error } = isEdit
       ? await supabase.from("tournaments").update(payload).eq("id", editing!.id)

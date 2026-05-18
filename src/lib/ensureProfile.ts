@@ -22,6 +22,9 @@ export async function ensureProfileForUser(authUser: User): Promise<ProfileRow |
 
   if (existing) return existing as ProfileRow;
 
+  const rpc = await supabase.rpc("ensure_user_profile");
+  if (!rpc.error && rpc.data) return rpc.data as ProfileRow;
+
   const meta = authUser.user_metadata as { username?: string; avatar_url?: string };
   let base =
     (typeof meta.username === "string" && meta.username.trim()) ||
@@ -29,6 +32,7 @@ export async function ensureProfileForUser(authUser: User): Promise<ProfileRow |
     "trainer";
   base = base.trim().slice(0, 24);
   if (base.length < 3) base = "trainer";
+  if (base.toLowerCase() === "admin") base = "trainer";
 
   for (let attempt = 0; attempt < 6; attempt++) {
     const suffix =

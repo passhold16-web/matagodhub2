@@ -64,7 +64,8 @@ const Conversacion = () => {
       const { data: prof } = await supabase
         .from("profiles")
         .select("user_id, username, avatar_url, role")
-        .eq("username", username)
+        .ilike("username", username)
+        .limit(1)
         .maybeSingle();
 
       if (!prof) {

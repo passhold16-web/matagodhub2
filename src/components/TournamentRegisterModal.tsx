@@ -20,6 +20,8 @@ interface Props {
   onOpenChange: (o: boolean) => void;
   tournamentId: string | null;
   tournamentName?: string;
+  maxPlayers?: number;
+  currentPlayers?: number;
   onDone?: () => void;
 }
 
@@ -28,6 +30,8 @@ export const TournamentRegisterModal = ({
   onOpenChange,
   tournamentId,
   tournamentName,
+  maxPlayers,
+  currentPlayers = 0,
   onDone,
 }: Props) => {
   const { user, profile } = useAuth();
@@ -60,6 +64,14 @@ export const TournamentRegisterModal = ({
       toast({
         title: "Descripción muy corta",
         description: "Mínimo 5 caracteres.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (maxPlayers != null && currentPlayers >= maxPlayers) {
+      toast({
+        title: "Torneo completo",
+        description: "Ya no quedan plazas disponibles.",
         variant: "destructive",
       });
       return;

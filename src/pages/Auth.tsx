@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { ensureProfileForUser } from "@/lib/ensureProfile";
+import { signOutIfBanned } from "@/lib/checkBanned";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -69,8 +70,12 @@ const Auth = () => {
         toast.error("El usuario debe tener al menos 3 caracteres.");
         return;
       }
-      if (!/^[a-zA-Z0-9_.-]+$/.test(cleanUser)) {
-        toast.error("Usuario: solo letras, números, . _ -");
+      if (cleanUser.toLowerCase() === "admin") {
+        toast.error("Ese nombre de usuario está reservado.");
+        return;
+      }
+      if (!/^[a-zA-Z0-9_-]+$/.test(cleanUser)) {
+        toast.error("Usuario: solo letras, números, _ y -");
         return;
       }
       if (password.length < 6) {
@@ -137,11 +142,15 @@ const Auth = () => {
         return;
       }
 
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data: signInData, error } = await supabase.auth.signInWithPassword({
         email: resolvedEmail as string,
         password,
       });
       if (error) throw error;
+      if (signInData.user && (await signOutIfBanned(signInData.user.id))) {
+        toast.error("Tu cuenta está suspendida. Contacta con un moderador.");
+        return;
+      }
       toast.success("Sesión iniciada.");
       navigate("/", { replace: true });
     } catch (err: any) {
@@ -257,7 +266,7 @@ const Auth = () => {
                 />
                 {mode === "signup" && (
                   <p className="text-[10px] text-foreground/50">
-                    Solo letras, números, . _ - · Mínimo 3 caracteres.
+                    Solo letras, números, _ y - · Mínimo 3 caracteres.
                   </p>
                 )}
               </div>

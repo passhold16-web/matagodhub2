@@ -111,6 +111,14 @@ const EditarPerfil = () => {
     navigate(`/perfil/${trimmed}`);
   };
 
+  if (loading || !user) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="animate-spin text-primary" size={32} />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background relative">
       <div className="grid-bg fixed inset-0 pointer-events-none opacity-60" />

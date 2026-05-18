@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { ensureProfileForUser, type ProfileRow } from "@/lib/ensureProfile";
+import { signOutIfBanned } from "@/lib/checkBanned";
 
 export type Profile = ProfileRow;
 
@@ -22,6 +23,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   const loadProfile = async (authUser: User) => {
+    if (await signOutIfBanned(authUser.id, true)) {
+      setProfile(null);
+      setUser(null);
+      setSession(null);
+      return;
+    }
     const row = await ensureProfileForUser(authUser);
     if (row) setProfile(row);
   };

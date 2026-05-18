@@ -409,6 +409,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      ensure_user_profile: {
+        Args: Record<string, never>
+        Returns: Database["public"]["Tables"]["profiles"]["Row"]
+      }
       get_email_for_username: { Args: { _username: string }; Returns: string }
       has_app_role: {
         Args: { _role: string; _user_id: string }

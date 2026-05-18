@@ -7,32 +7,46 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, ShieldCheck } from "lucide-react";
 
-/**
- * Reached after the user clicks the password-reset email link.
- * Supabase fires a `PASSWORD_RECOVERY` auth event with a valid recovery
- * session attached, allowing us to call updateUser({ password }).
- */
 const ResetPassword = () => {
   const navigate = useNavigate();
   const [ready, setReady] = useState(false);
+  const [invalidLink, setInvalidLink] = useState(false);
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    // Listen for recovery session establishment
+    const hash = window.location.hash;
+    const isRecoveryLink =
+      hash.includes("type=recovery") || hash.includes("type=password_recovery");
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN") {
+      if (event === "PASSWORD_RECOVERY") {
         setReady(true);
+        setInvalidLink(false);
       }
     });
 
-    // Also check if a session already exists (link clicked moments ago)
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) setReady(true);
+      if (session && isRecoveryLink) {
+        setReady(true);
+        setInvalidLink(false);
+      } else if (!isRecoveryLink) {
+        setInvalidLink(true);
+      }
     });
 
-    return () => subscription.unsubscribe();
+    const timeout = window.setTimeout(() => {
+      setReady((wasReady) => {
+        if (!wasReady) setInvalidLink(true);
+        return wasReady;
+      });
+    }, 8000);
+
+    return () => {
+      subscription.unsubscribe();
+      window.clearTimeout(timeout);
+    };
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -88,7 +102,16 @@ const ResetPassword = () => {
         </div>
 
         <div className="neon-border rounded-lg bg-card/70 backdrop-blur-xl p-8">
-          {!ready ? (
+          {invalidLink ? (
+            <div className="text-center py-6 space-y-4">
+              <p className="text-sm text-foreground/70">
+                El enlace no es válido o ha caducado. Pide uno nuevo desde la pantalla de inicio de sesión.
+              </p>
+              <Button asChild variant="outline" className="font-display tracking-widest">
+                <Link to="/auth?mode=forgot">SOLICITAR NUEVO ENLACE</Link>
+              </Button>
+            </div>
+          ) : !ready ? (
             <div className="flex flex-col items-center gap-3 py-6">
               <Loader2 className="animate-spin text-primary" size={28} />
               <p className="text-sm text-foreground/60 text-center">

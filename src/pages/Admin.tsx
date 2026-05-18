@@ -258,7 +258,7 @@ const Admin = () => {
     };
   }, [search, users, bans, builds, posts, tournaments, chat]);
 
-  if (!isStaff) {
+  if (authLoading || !user || !isStaff) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="animate-spin text-primary" />

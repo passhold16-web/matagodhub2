@@ -34,7 +34,8 @@ export const NewsSection = () => {
   const [editing, setEditing] = useState<NewsItem | null>(null);
   const [detail, setDetail] = useState<NewsItem | null>(null);
 
-  const isStaff = profile?.role === "admin" || profile?.role === "mod";
+  const role = profile?.role?.toLowerCase();
+  const isStaff = role === "admin" || role === "mod";
 
   const load = async () => {
     const { data: news } = await supabase

@@ -63,7 +63,8 @@ export const TournamentsSection = () => {
   const [participantsFor, setParticipantsFor] = useState<TournamentRow | null>(null);
   const [detailFor, setDetailFor] = useState<TournamentRow | null>(null);
 
-  const isStaff = profile?.role === "admin" || profile?.role === "mod";
+  const role = profile?.role?.toLowerCase();
+  const isStaff = role === "admin" || role === "mod";
 
   const loadRegistrations = async () => {
     const { data } = await supabase
@@ -391,6 +392,8 @@ export const TournamentsSection = () => {
         onOpenChange={(o) => !o && setRegisterFor(null)}
         tournamentId={registerFor?.id ?? null}
         tournamentName={registerFor?.name}
+        maxPlayers={registerFor?.max_players}
+        currentPlayers={registerFor ? countForTournament(registerFor.id) : 0}
       />
 
       <TournamentParticipantsModal

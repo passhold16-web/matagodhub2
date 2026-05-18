@@ -75,8 +75,14 @@ export const BuildsGallery = () => {
   }, []);
 
   useEffect(() => {
+    if (authLoading) return;
+    if (!user) {
+      setBuilds([]);
+      setLoading(false);
+      return;
+    }
     fetchBuilds();
-  }, [fetchBuilds]);
+  }, [fetchBuilds, user, authLoading]);
 
   // Realtime: keep builds list in sync (insert/update/delete).
   // Vote changes are handled per-card by useBuildVote, so we don't refetch
