@@ -1,15 +1,9 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { ensureProfileForUser, type ProfileRow } from "@/lib/ensureProfile";
 
-interface Profile {
-  id: string;
-  user_id: string;
-  username: string;
-  avatar_url: string | null;
-  bio: string | null;
-  role: string;
-}
+export type Profile = ProfileRow;
 
 interface AuthContextValue {
   user: User | null;
@@ -27,16 +21,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const loadProfile = async (authUser: User) => {
+    const row = await ensureProfileForUser(authUser);
+    if (row) setProfile(row);
+  };
+
   useEffect(() => {
-    // 1. Set up listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, newSession) => {
         setSession(newSession);
         setUser(newSession?.user ?? null);
         if (newSession?.user) {
-          // Defer profile fetch to avoid deadlock
           setTimeout(() => {
-            void loadProfile(newSession.user.id);
+            void loadProfile(newSession.user);
           }, 0);
         } else {
           setProfile(null);
@@ -44,25 +41,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     );
 
-    // 2. Then check existing session
     supabase.auth.getSession().then(({ data: { session: existing } }) => {
       setSession(existing);
       setUser(existing?.user ?? null);
-      if (existing?.user) void loadProfile(existing.user.id);
+      if (existing?.user) void loadProfile(existing.user);
       setLoading(false);
     });
 
     return () => subscription.unsubscribe();
   }, []);
-
-  const loadProfile = async (userId: string) => {
-    const { data } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("user_id", userId)
-      .maybeSingle();
-    if (data) setProfile(data as Profile);
-  };
 
   const signOut = async () => {
     await supabase.auth.signOut();

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { ensureProfileForUser } from "@/lib/ensureProfile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -79,7 +80,7 @@ const Auth = () => {
 
       setSubmitting(true);
       try {
-        const { error } = await supabase.auth.signUp({
+        const { data: signUpData, error } = await supabase.auth.signUp({
           email: cleanEmail,
           password,
           options: {
@@ -88,8 +89,13 @@ const Auth = () => {
           },
         });
         if (error) throw error;
+        if (signUpData.session?.user) {
+          await ensureProfileForUser(signUpData.session.user);
+        }
         toast.success(
-          "Cuenta creada. Revisa tu email para confirmar la dirección y poder iniciar sesión."
+          signUpData.session
+            ? "Cuenta creada. Ya puedes iniciar sesión."
+            : "Cuenta creada. Revisa tu email para confirmar la dirección y poder iniciar sesión."
         );
         setMode("login");
       } catch (err: any) {

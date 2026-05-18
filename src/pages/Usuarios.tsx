@@ -45,30 +45,39 @@ const Usuarios = () => {
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      const { data: profs } = await supabase
+      const { data: profs, error: profsError } = await supabase
         .from("profiles")
         .select("user_id, username, bio, avatar_url, role")
         .order("created_at", { ascending: false });
 
-      if (!profs) {
+      if (profsError) {
+        console.error("Error loading trainers:", profsError.message);
         setUsers([]);
         setLoading(false);
         return;
       }
 
-      const ids = profs.map((p) => p.user_id);
-      const { data: builds } = await supabase
-        .from("builds")
-        .select("user_id")
-        .in("user_id", ids);
-
+      const rows = profs ?? [];
       const counts = new Map<string, number>();
-      (builds ?? []).forEach((b) => {
-        counts.set(b.user_id, (counts.get(b.user_id) ?? 0) + 1);
-      });
+
+      if (rows.length > 0) {
+        const ids = rows.map((p) => p.user_id);
+        const { data: builds, error: buildsError } = await supabase
+          .from("builds")
+          .select("user_id")
+          .in("user_id", ids);
+
+        if (buildsError) {
+          console.error("Error loading build counts:", buildsError.message);
+        } else {
+          (builds ?? []).forEach((b) => {
+            counts.set(b.user_id, (counts.get(b.user_id) ?? 0) + 1);
+          });
+        }
+      }
 
       setUsers(
-        profs.map((p) => ({
+        rows.map((p) => ({
           ...(p as Omit<UserRow, "build_count">),
           build_count: counts.get(p.user_id) ?? 0,
         }))
