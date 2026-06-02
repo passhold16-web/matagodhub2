@@ -5,6 +5,7 @@ import { NewsSection } from "@/components/NewsSection";
 import { BuildsGallery } from "@/components/BuildsGallery";
 import { TournamentsSection } from "@/components/TournamentsSection";
 import { CommunitySection } from "@/components/CommunitySection";
+import { LatestChallengeWidget } from "@/components/challenges/LatestChallengeWidget";
 import { Footer } from "@/components/Footer";
 
 const SECTIONS = ["home", "builds", "torneos", "comunidad"];
@@ -41,6 +42,9 @@ const Index = () => {
         <NewsSection />
         <BuildsGallery />
         <TournamentsSection />
+        <section className="py-12 container max-w-4xl mx-auto px-4">
+          <LatestChallengeWidget />
+        </section>
         <CommunitySection />
       </main>
       <Footer />

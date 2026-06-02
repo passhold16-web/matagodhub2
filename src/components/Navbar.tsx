@@ -13,6 +13,8 @@ const NAV_ITEMS = [
   { id: "foro", label: "Foro", route: true, path: "/foro" },
   { id: "chat", label: "Chat", route: true, path: "/chat" },
   { id: "trainers", label: "Trainers", route: true, path: "/usuarios" },
+  { id: "desafios", label: "Desafíos", route: true, path: "/desafios" },
+  { id: "ranking", label: "Ranking", route: true, path: "/ranking" },
   { id: "comunidad", label: "Comunidad", route: false },
 ];
 

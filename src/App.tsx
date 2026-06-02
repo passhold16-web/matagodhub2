@@ -16,6 +16,9 @@ import Mensajes from "./pages/Mensajes";
 import Conversacion from "./pages/Conversacion";
 import Usuarios from "./pages/Usuarios";
 import Admin from "./pages/Admin";
+import Desafios from "./pages/Desafios";
+import DesafioDetail from "./pages/DesafioDetail";
+import Ranking from "./pages/Ranking";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,6 +40,9 @@ const App = () => (
             <Route path="/mensajes" element={<Mensajes />} />
             <Route path="/mensajes/:username" element={<Conversacion />} />
             <Route path="/usuarios" element={<Usuarios />} />
+            <Route path="/desafios" element={<Desafios />} />
+            <Route path="/desafios/:id" element={<DesafioDetail />} />
+            <Route path="/ranking" element={<Ranking />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/perfil/editar" element={<EditarPerfil />} />
             <Route path="/perfil/:username" element={<Perfil />} />

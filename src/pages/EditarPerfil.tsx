@@ -16,6 +16,7 @@ const EditarPerfil = () => {
   const navigate = useNavigate();
 
   const [username, setUsername] = useState("");
+  const [pokemmoNick, setPokemmoNick] = useState("");
   const [bio, setBio] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -30,6 +31,7 @@ const EditarPerfil = () => {
   useEffect(() => {
     if (profile) {
       setUsername(profile.username ?? "");
+      setPokemmoNick((profile as { pokemmo_nick?: string }).pokemmo_nick ?? "");
       setBio(profile.bio ?? "");
       setAvatarUrl(profile.avatar_url ?? null);
     }
@@ -88,10 +90,21 @@ const EditarPerfil = () => {
     }
 
     setSaving(true);
+    const nick = pokemmoNick.trim();
+    if (nick.length > 0 && (nick.length < 2 || nick.length > 32)) {
+      toast({
+        title: "Nick inválido",
+        description: "El nick de PokéMMO debe tener entre 2 y 32 caracteres.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const { error } = await supabase
       .from("profiles")
       .update({
         username: trimmed,
+        pokemmo_nick: nick || null,
         bio: bio.trim() || null,
         avatar_url: avatarUrl,
       })
@@ -190,6 +203,22 @@ const EditarPerfil = () => {
               />
               <p className="text-[10px] text-foreground/40 mt-1">
                 Solo letras, números, guiones y guiones bajos.
+              </p>
+            </div>
+
+            <div>
+              <label className="font-display text-xs tracking-widest text-foreground/70 mb-1 block">
+                NICK DE POKÉMMO
+              </label>
+              <Input
+                value={pokemmoNick}
+                onChange={(e) => setPokemmoNick(e.target.value)}
+                maxLength={32}
+                placeholder="Tu personaje en el juego"
+                className="bg-background/60 border-primary/30 focus:border-primary font-display tracking-wide"
+              />
+              <p className="text-[10px] text-foreground/40 mt-1">
+                Aparece en el ranking y en los retos. Obligatorio para competir.
               </p>
             </div>
 

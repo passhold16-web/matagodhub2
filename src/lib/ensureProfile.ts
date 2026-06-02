@@ -8,6 +8,9 @@ export interface ProfileRow {
   avatar_url: string | null;
   bio: string | null;
   role: string;
+  wins?: number;
+  losses?: number;
+  pokemmo_nick?: string | null;
   created_at: string;
   updated_at: string;
 }

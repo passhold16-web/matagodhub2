@@ -24,6 +24,9 @@ import {
   Trash2,
   UserCheck,
 } from "lucide-react";
+import { attachProfilesToChallenges } from "@/lib/fetchChallenges";
+import type { ChallengeWithProfiles } from "@/types/challenges";
+import { displayPokemmoNick } from "@/lib/combatStats";
 
 type ProfileRow = {
   user_id: string;
@@ -34,11 +37,12 @@ type ProfileRow = {
   banned?: boolean;
 };
 
-type Tab = "users" | "bans" | "builds" | "forum" | "tournaments" | "chat";
+type Tab = "users" | "bans" | "builds" | "forum" | "tournaments" | "chat" | "disputes";
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "users", label: "USUARIOS" },
   { id: "bans", label: "BANEOS" },
+  { id: "disputes", label: "DISPUTAS" },
   { id: "builds", label: "BUILDS" },
   { id: "forum", label: "FORO" },
   { id: "tournaments", label: "TORNEOS" },
@@ -74,6 +78,8 @@ const Admin = () => {
   const [chat, setChat] = useState<
     { id: string; message: string; user_id: string; username?: string; created_at: string }[]
   >([]);
+  const [disputes, setDisputes] = useState<ChallengeWithProfiles[]>([]);
+  const [proofUrls, setProofUrls] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (authLoading) return;
@@ -165,10 +171,49 @@ const Admin = () => {
     setLoading(false);
   };
 
+  const loadDisputes = async () => {
+    setLoading(true);
+    const { data } = await supabase
+      .from("challenges")
+      .select("*")
+      .eq("status", "disputa")
+      .order("updated_at", { ascending: false });
+    const rows = await attachProfilesToChallenges((data ?? []) as ChallengeWithProfiles[]);
+    setDisputes(rows);
+
+    const urls: Record<string, string> = {};
+    await Promise.all(
+      rows.map(async (d) => {
+        if (!d.dispute_proof_path) return;
+        const { data: signed } = await supabase.storage
+          .from("challenge-proofs")
+          .createSignedUrl(d.dispute_proof_path, 3600);
+        if (signed?.signedUrl) urls[d.id] = signed.signedUrl;
+      })
+    );
+    setProofUrls(urls);
+    setLoading(false);
+  };
+
+  const resolveDispute = async (challengeId: string, winnerId: string) => {
+    const { error } = await supabase.rpc("resolve_challenge_dispute", {
+      p_challenge_id: challengeId,
+      p_winner_id: winnerId,
+      p_counts_for_ranking: true,
+    });
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: "Disputa resuelta", description: "Prueba eliminada del storage." });
+    void loadDisputes();
+  };
+
   useEffect(() => {
     if (!isStaff) return;
     if (tab === "users") void loadUsers();
     else if (tab === "bans") void loadBans();
+    else if (tab === "disputes") void loadDisputes();
     else if (tab === "builds") void loadBuilds();
     else if (tab === "forum") void loadPosts();
     else if (tab === "tournaments") void loadTournaments();
@@ -239,10 +284,11 @@ const Admin = () => {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return { users, bans, builds, posts, tournaments, chat };
+    if (!q) return { users, bans, disputes, builds, posts, tournaments, chat };
     return {
       users: users.filter((u) => u.username.toLowerCase().includes(q)),
       bans: bans.filter((b) => (b.username ?? "").toLowerCase().includes(q)),
+      disputes: disputes.filter((d) => d.id.toLowerCase().includes(q)),
       builds: builds.filter(
         (b) => b.name.toLowerCase().includes(q) || (b.username ?? "").toLowerCase().includes(q)
       ),
@@ -256,7 +302,7 @@ const Admin = () => {
         (c) => c.message.toLowerCase().includes(q) || (c.username ?? "").toLowerCase().includes(q)
       ),
     };
-  }, [search, users, bans, builds, posts, tournaments, chat]);
+  }, [search, users, bans, disputes, builds, posts, tournaments, chat]);
 
   if (authLoading || !user || !isStaff) {
     return (
@@ -505,6 +551,50 @@ const Admin = () => {
                   ))}
                 </TableBody>
               </Table>
+            ) : tab === "disputes" ? (
+              <div className="space-y-4">
+                {filtered.disputes.length === 0 ? (
+                  <p className="text-center text-foreground/50 py-8">No hay disputas abiertas.</p>
+                ) : (
+                  filtered.disputes.map((d) => (
+                    <div key={d.id} className="neon-border rounded-lg p-4 space-y-3">
+                      <p className="font-display text-sm tracking-wider">
+                        {displayPokemmoNick(d.challenger?.pokemmo_nick, d.challenger?.username ?? "?")}{" "}
+                        vs{" "}
+                        {displayPokemmoNick(d.opponent?.pokemmo_nick, d.opponent?.username ?? "?")} —{" "}
+                        {d.dispute_reason === "non_payment" ? "IMPAGO" : "RESULTADO"}
+                      </p>
+                      {proofUrls[d.id] && (
+                        <a
+                          href={proofUrls[d.id]}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-primary text-xs underline"
+                        >
+                          Ver captura de prueba
+                        </a>
+                      )}
+                      <div className="flex gap-2 flex-wrap">
+                        <Button
+                          size="sm"
+                          onClick={() => resolveDispute(d.id, d.challenger_id)}
+                        >
+                          Victoria {d.challenger?.username}
+                        </Button>
+                        {d.opponent_id && (
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            onClick={() => resolveDispute(d.id, d.opponent_id!)}
+                          >
+                            Victoria {d.opponent?.username}
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
             ) : tab === "tournaments" ? (
               <Table>
                 <TableHeader>

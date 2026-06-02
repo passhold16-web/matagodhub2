@@ -9,6 +9,8 @@ import { BuildDetailModal } from "@/components/BuildDetailModal";
 import { CreateBuildModal, type EditingBuild } from "@/components/CreateBuildModal";
 import { Button } from "@/components/ui/button";
 import { TrainerBadge } from "@/components/TrainerBadge";
+import { CombatRecord } from "@/components/challenges/CombatRecord";
+import { displayPokemmoNick } from "@/lib/combatStats";
 import {
   Loader2,
   ArrowLeft,
@@ -28,6 +30,9 @@ interface ProfileData {
   bio: string | null;
   avatar_url: string | null;
   role: string;
+  wins: number;
+  losses: number;
+  pokemmo_nick: string | null;
 }
 
 const ROLE_BADGES: Record<string, { label: string; icon: typeof Crown; tone: string }> = {
@@ -56,7 +61,7 @@ const Perfil = () => {
     // Case-insensitive lookup; pick the first match in case of legacy duplicates
     const { data: profs } = await supabase
       .from("profiles")
-      .select("user_id, username, bio, avatar_url, role")
+      .select("user_id, username, bio, avatar_url, role, wins, losses, pokemmo_nick")
       .ilike("username", username)
       .limit(1);
 
@@ -160,11 +165,19 @@ const Perfil = () => {
                     <p className="mt-3 text-foreground/70 max-w-xl">
                       {profile.bio || "Este trainer aún no ha escrito su bio."}
                     </p>
-                    <div className="mt-4 flex flex-wrap items-center justify-center md:justify-start gap-2">
-                      <TrainerBadge buildCount={builds.length} size="md" showProgress />
-                      <span className="font-display text-xs tracking-widest text-accent">
-                        · {builds.length} {builds.length === 1 ? "BUILD PUBLICADA" : "BUILDS PUBLICADAS"}
-                      </span>
+                    <div className="mt-4 flex flex-col items-center md:items-start gap-2">
+                      <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
+                        <TrainerBadge buildCount={builds.length} size="md" showProgress />
+                        <span className="font-display text-xs tracking-widest text-accent">
+                          · {builds.length} {builds.length === 1 ? "BUILD PUBLICADA" : "BUILDS PUBLICADAS"}
+                        </span>
+                      </div>
+                      <CombatRecord wins={profile.wins ?? 0} losses={profile.losses ?? 0} />
+                      {profile.pokemmo_nick && (
+                        <p className="text-[10px] font-display tracking-widest text-foreground/50">
+                          Nick PokéMMO: {displayPokemmoNick(profile.pokemmo_nick, profile.username)}
+                        </p>
+                      )}
                     </div>
                     {currentUser && currentUser.id !== profile.user_id && (
                       <div className="mt-5 flex justify-center md:justify-start">
